@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { cases, caseHistory } from '@/db/schema';
-import { eq, and, like, desc, sql } from 'drizzle-orm';
+import { eq, and, desc, sql } from 'drizzle-orm';
 import { requireAuth } from '@/lib/auth';
-import { generateCaseNumber } from '@/lib/utils';
 import type { Category, Status, Urgency } from '@/types';
 
 export async function GET(request: NextRequest) {
@@ -47,16 +46,9 @@ export async function POST(request: NextRequest) {
     const session = await requireAuth();
     const body = await request.json();
 
-    // Generate case number if not provided
-    let caseNumber = body.caseNumber;
+    const caseNumber = body.caseNumber;
     if (!caseNumber) {
-      const year = new Date().getFullYear();
-      const countResult = await db
-        .select({ count: sql<number>`COUNT(*)` })
-        .from(cases)
-        .where(like(cases.caseNumber, `CRC-${year}-%`));
-      const nextNum = (countResult[0]?.count || 0) + 1;
-      caseNumber = generateCaseNumber(year, nextNum);
+      return NextResponse.json({ error: 'Case number is required' }, { status: 400 });
     }
 
     const result = await db.insert(cases).values({
@@ -74,6 +66,7 @@ export async function POST(request: NextRequest) {
       urgency: body.urgency || 'moderate',
       intakeDate: body.intakeDate || null,
       intakeReason: body.intakeReason || null,
+      externalLink: body.externalLink || null,
       updatedBy: session.initials,
       createdBy: session.initials,
     }).returning();

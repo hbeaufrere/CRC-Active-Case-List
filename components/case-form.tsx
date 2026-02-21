@@ -32,6 +32,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
     intakeDate: initialData?.intakeDate || new Date().toISOString().split('T')[0],
     intakeReason: initialData?.intakeReason || '',
     caseNumber: initialData?.caseNumber || '',
+    externalLink: initialData?.externalLink || '',
   });
 
   useEffect(() => {
@@ -63,7 +64,8 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
         nextFollowUpDate: form.nextFollowUpDate || null,
         followUpNotes: form.followUpNotes || null,
         intakeReason: form.intakeReason || null,
-        caseNumber: mode === 'create' && !form.caseNumber ? undefined : form.caseNumber,
+        externalLink: form.externalLink || null,
+        caseNumber: form.caseNumber,
       };
 
       const res = await fetch(url, {
@@ -114,20 +116,18 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
             ))}
           </div>
         </div>
-        {mode === 'create' && (
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Case Number <span className="text-slate-400 font-normal">(auto-generated if blank)</span>
-            </label>
-            <input
-              type="text"
-              value={form.caseNumber}
-              onChange={e => updateField('caseNumber', e.target.value)}
-              placeholder="CRC-2026-001"
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
-            />
-          </div>
-        )}
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Case Number *</label>
+          <input
+            type="text"
+            value={form.caseNumber}
+            onChange={e => updateField('caseNumber', e.target.value)}
+            required
+            placeholder="Enter case number from your system"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
+            readOnly={mode === 'edit'}
+          />
+        </div>
       </div>
 
       {/* Species and Name */}
@@ -275,6 +275,18 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
           onChange={e => updateField('intakeReason', e.target.value)}
           className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
           placeholder="Why the bird was admitted..."
+        />
+      </div>
+
+      {/* External System Link */}
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1">External System Link</label>
+        <input
+          type="url"
+          value={form.externalLink}
+          onChange={e => updateField('externalLink', e.target.value)}
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
+          placeholder="Paste link to this case in your system (e.g. https://...)"
         />
       </div>
 

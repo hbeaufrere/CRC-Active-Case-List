@@ -133,6 +133,21 @@ export default async function CaseDetailPage({
               <p className="text-slate-700 font-medium">{caseData.createdBy}</p>
             </div>
           </div>
+          {caseData.externalLink && (
+            <div className="border-t border-slate-100 mt-4 pt-3">
+              <span className="text-slate-500 text-sm">External System Link</span>
+              <p className="mt-1">
+                <a
+                  href={caseData.externalLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-amber-700 hover:text-amber-900 underline text-sm break-all"
+                >
+                  {caseData.externalLink}
+                </a>
+              </p>
+            </div>
+          )}
           <div className="border-t border-slate-100 mt-4 pt-3 text-xs text-slate-400">
             Last updated: {formatDateTime(caseData.updatedAt)} by {caseData.updatedBy}
           </div>

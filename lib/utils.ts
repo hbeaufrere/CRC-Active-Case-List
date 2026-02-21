@@ -96,10 +96,6 @@ export function sortCasesByAttention(cases: CaseWithDisplay[]): CaseWithDisplay[
   });
 }
 
-export function generateCaseNumber(year: number, sequenceNum: number): string {
-  return `CRC-${year}-${String(sequenceNum).padStart(3, '0')}`;
-}
-
 export function formatDateTime(isoString: string | null): string {
   if (!isoString) return '';
   try {

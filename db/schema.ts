@@ -17,6 +17,7 @@ export const cases = sqliteTable('cases', {
   urgency: text('urgency').notNull().$type<'critical' | 'high' | 'moderate' | 'stable' | 'routine'>().default('moderate'),
   intakeDate: text('intake_date'),
   intakeReason: text('intake_reason'),
+  externalLink: text('external_link'),
   createdAt: text('created_at').default(sql`(datetime('now'))`),
   updatedAt: text('updated_at').default(sql`(datetime('now'))`),
   updatedBy: text('updated_by').notNull(),

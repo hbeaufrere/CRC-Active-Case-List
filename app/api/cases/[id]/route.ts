@@ -52,7 +52,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
     const fieldsToTrack = [
       'species', 'commonName', 'bandNumber', 'activeProblems',
       'currentTreatments', 'plan', 'nextFollowUpDate', 'followUpNotes',
-      'status', 'urgency', 'intakeDate', 'intakeReason', 'category',
+      'status', 'urgency', 'intakeDate', 'intakeReason', 'category', 'externalLink',
     ] as const;
 
     const historyEntries: { caseId: number; fieldChanged: string; oldValue: string | null; newValue: string | null; changedBy: string }[] = [];
