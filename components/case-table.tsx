@@ -1,14 +1,15 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import type { CaseWithDisplay } from '@/types';
+import type { CaseWithDisplay, Category } from '@/types';
 import { URGENCY_CONFIG } from '@/lib/constants';
 import UrgencyBadge from './urgency-badge';
 import FollowUpIndicator from './follow-up-indicator';
 import { formatDateTime } from '@/lib/utils';
 
-export default function CaseTable({ cases }: { cases: CaseWithDisplay[] }) {
+export default function CaseTable({ cases, category }: { cases: CaseWithDisplay[]; category?: Category }) {
   const router = useRouter();
+  const showLocation = category !== 'ambassador';
 
   if (cases.length === 0) {
     return (
@@ -30,7 +31,7 @@ export default function CaseTable({ cases }: { cases: CaseWithDisplay[] }) {
               <th className="w-3"></th>
               <th className="px-3 py-3 text-left font-semibold text-slate-600">Case #</th>
               <th className="px-3 py-3 text-left font-semibold text-slate-600">Species</th>
-              <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden md:table-cell">Location</th>
+              {showLocation && <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden md:table-cell">Location</th>}
               <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden md:table-cell">Active Problems</th>
               <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden lg:table-cell">Treatments</th>
               <th className="px-3 py-3 text-left font-semibold text-slate-600">Urgency</th>
@@ -61,9 +62,11 @@ export default function CaseTable({ cases }: { cases: CaseWithDisplay[] }) {
                   <td className="px-3 py-3">
                     {c.species}
                   </td>
-                  <td className="px-3 py-3 hidden md:table-cell">
-                    <div className="text-slate-600">{c.location || '—'}</div>
-                  </td>
+                  {showLocation && (
+                    <td className="px-3 py-3 hidden md:table-cell">
+                      <div className="text-slate-600">{c.location || '—'}</div>
+                    </td>
+                  )}
                   <td className="px-3 py-3 hidden md:table-cell">
                     <div className="max-w-xs truncate text-slate-600" title={c.activeProblems}>
                       {c.activeProblems}

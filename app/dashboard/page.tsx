@@ -169,7 +169,7 @@ export default async function DashboardPage({
             </div>
 
             {/* Case table */}
-            <CaseTable cases={sortedCases} />
+            <CaseTable cases={sortedCases} category={category} />
           </>
         )}
 
