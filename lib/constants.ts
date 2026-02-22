@@ -83,4 +83,6 @@ export const LOCATION_OPTIONS = [
   'NE run',
   'NE flight',
   'O flight',
+  'VMTH',
+  'CRC - Hospit cage',
 ] as const;
