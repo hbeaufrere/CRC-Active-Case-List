@@ -112,22 +112,28 @@ export default async function CaseDetailPage({
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-8">
           <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">Details</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-            <div>
-              <span className="text-slate-500">Intake Date</span>
-              <p className="text-slate-700 font-medium">{formatDate(caseData.intakeDate) || 'N/A'}</p>
-            </div>
-            <div>
-              <span className="text-slate-500">Intake Reason</span>
-              <p className="text-slate-700 font-medium">{caseData.intakeReason || 'N/A'}</p>
-            </div>
+            {caseData.category !== 'ambassador' && (
+              <div>
+                <span className="text-slate-500">Intake Date</span>
+                <p className="text-slate-700 font-medium">{formatDate(caseData.intakeDate) || 'N/A'}</p>
+              </div>
+            )}
+            {caseData.category !== 'ambassador' && (
+              <div>
+                <span className="text-slate-500">Intake Reason</span>
+                <p className="text-slate-700 font-medium">{caseData.intakeReason || 'N/A'}</p>
+              </div>
+            )}
             <div>
               <span className="text-slate-500">WRMD #</span>
               <p className="text-slate-700 font-medium">{caseData.wrmdCaseNumber || 'N/A'}</p>
             </div>
-            <div>
-              <span className="text-slate-500">Location</span>
-              <p className="text-slate-700 font-medium">{caseData.location || 'N/A'}</p>
-            </div>
+            {caseData.category !== 'ambassador' && (
+              <div>
+                <span className="text-slate-500">Location</span>
+                <p className="text-slate-700 font-medium">{caseData.location || 'N/A'}</p>
+              </div>
+            )}
             <div>
               <span className="text-slate-500">Created By</span>
               <p className="text-slate-700 font-medium">{caseData.createdBy}</p>
