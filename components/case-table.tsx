@@ -1,15 +1,80 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import type { CaseWithDisplay, Category } from '@/types';
-import { URGENCY_CONFIG } from '@/lib/constants';
+import { URGENCY_CONFIG, URGENCY_ORDER } from '@/lib/constants';
 import UrgencyBadge from './urgency-badge';
 import FollowUpIndicator from './follow-up-indicator';
 import { formatDateTime } from '@/lib/utils';
+import type { FollowUpStatus } from '@/types';
+
+type SortColumn = 'species' | 'urgency' | 'followUp' | 'updated';
+type SortDirection = 'asc' | 'desc';
+
+const FOLLOW_UP_ORDER: Record<FollowUpStatus, number> = {
+  overdue: 0,
+  due_today: 1,
+  upcoming: 2,
+  scheduled: 3,
+  none: 4,
+};
+
+function SortIcon({ active, direction }: { active: boolean; direction: SortDirection }) {
+  return (
+    <svg className={`inline w-3.5 h-3.5 ml-1 ${active ? 'text-blue-700' : 'text-slate-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      {direction === 'asc' || !active ? (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={active && direction === 'desc' ? 'M19 9l-7 7-7-7' : 'M5 15l7-7 7 7'} />
+      ) : (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+      )}
+    </svg>
+  );
+}
 
 export default function CaseTable({ cases, category }: { cases: CaseWithDisplay[]; category?: Category }) {
   const router = useRouter();
   const showLocation = category !== 'ambassador';
+  const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+
+  function handleSort(column: SortColumn) {
+    if (sortColumn === column) {
+      if (sortDirection === 'asc') {
+        setSortDirection('desc');
+      } else {
+        // Third click: reset to default order
+        setSortColumn(null);
+        setSortDirection('asc');
+      }
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  }
+
+  const sortedCases = useMemo(() => {
+    if (!sortColumn) return cases;
+
+    return [...cases].sort((a, b) => {
+      let cmp = 0;
+      switch (sortColumn) {
+        case 'species':
+          cmp = a.species.localeCompare(b.species);
+          break;
+        case 'urgency':
+          cmp = URGENCY_ORDER.indexOf(a.displayUrgency) - URGENCY_ORDER.indexOf(b.displayUrgency);
+          break;
+        case 'followUp':
+          cmp = FOLLOW_UP_ORDER[a.followUpStatus] - FOLLOW_UP_ORDER[b.followUpStatus];
+          break;
+        case 'updated':
+          cmp = (a.updatedAt || '').localeCompare(b.updatedAt || '');
+          break;
+      }
+      return sortDirection === 'desc' ? -cmp : cmp;
+    });
+  }, [cases, sortColumn, sortDirection]);
 
   if (cases.length === 0) {
     return (
@@ -22,6 +87,8 @@ export default function CaseTable({ cases, category }: { cases: CaseWithDisplay[
     );
   }
 
+  const sortableThClass = 'px-3 py-3 text-left font-semibold text-slate-600 cursor-pointer select-none hover:text-blue-700 transition-colors';
+
   return (
     <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
       <div className="overflow-x-auto">
@@ -30,17 +97,29 @@ export default function CaseTable({ cases, category }: { cases: CaseWithDisplay[
             <tr className="bg-slate-50 border-b border-slate-200">
               <th className="w-3"></th>
               <th className="px-3 py-3 text-left font-semibold text-slate-600">Case #</th>
-              <th className="px-3 py-3 text-left font-semibold text-slate-600">Species</th>
+              <th className={sortableThClass} onClick={() => handleSort('species')}>
+                Species
+                <SortIcon active={sortColumn === 'species'} direction={sortDirection} />
+              </th>
               {showLocation && <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden md:table-cell">Location</th>}
               <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden md:table-cell">Active Problems</th>
               <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden lg:table-cell">Treatments</th>
-              <th className="px-3 py-3 text-left font-semibold text-slate-600">Urgency</th>
-              <th className="px-3 py-3 text-left font-semibold text-slate-600">Follow-up</th>
-              <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden sm:table-cell">Updated</th>
+              <th className={sortableThClass} onClick={() => handleSort('urgency')}>
+                Urgency
+                <SortIcon active={sortColumn === 'urgency'} direction={sortDirection} />
+              </th>
+              <th className={sortableThClass} onClick={() => handleSort('followUp')}>
+                Follow-up
+                <SortIcon active={sortColumn === 'followUp'} direction={sortDirection} />
+              </th>
+              <th className={`${sortableThClass} hidden sm:table-cell`} onClick={() => handleSort('updated')}>
+                Updated
+                <SortIcon active={sortColumn === 'updated'} direction={sortDirection} />
+              </th>
             </tr>
           </thead>
           <tbody>
-            {cases.map(c => {
+            {sortedCases.map(c => {
               const config = URGENCY_CONFIG[c.displayUrgency];
               return (
                 <tr
