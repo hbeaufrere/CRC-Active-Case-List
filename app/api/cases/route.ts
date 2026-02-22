@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Case number "${caseNumber}" already exists` }, { status: 409 });
     }
 
-    const result = await db.insert(cases).values({
+    await db.insert(cases).values({
       caseNumber,
       category: body.category || 'rehab',
       species: body.species || '',
@@ -84,9 +84,11 @@ export async function POST(request: NextRequest) {
       externalLink: body.externalLink || null,
       updatedBy: session.initials,
       createdBy: session.initials,
-    }).returning();
+    });
 
-    const newCase = result[0];
+    // Fetch the newly created case by case number
+    const newCaseResult = await db.select().from(cases).where(eq(cases.caseNumber, caseNumber));
+    const newCase = newCaseResult[0];
 
     // Log creation in history
     await db.insert(caseHistory).values({

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { necropsies } from '@/db/schema';
-import { desc, sql } from 'drizzle-orm';
+import { desc } from 'drizzle-orm';
 import { requireAuth } from '@/lib/auth';
 
 export async function GET() {
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Species is required' }, { status: 400 });
     }
 
-    const result = await db.insert(necropsies).values({
+    await db.insert(necropsies).values({
       dateDied: body.dateDied,
       vmthId: body.vmthId,
       wrmdId: body.wrmdId || null,
@@ -46,9 +46,11 @@ export async function POST(request: NextRequest) {
       necropsyLink: body.necropsyLink || null,
       createdBy: session.initials,
       updatedBy: session.initials,
-    }).returning();
+    });
 
-    return NextResponse.json(result[0], { status: 201 });
+    // Fetch the newly created necropsy
+    const newResult = await db.select().from(necropsies).orderBy(desc(necropsies.id)).limit(1);
+    return NextResponse.json(newResult[0], { status: 201 });
   } catch (error) {
     console.error('Create necropsy error:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
