@@ -44,6 +44,22 @@ export const species = sqliteTable('species', {
   scientificName: text('scientific_name'),
 });
 
+export const necropsies = sqliteTable('necropsies', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  dateDied: text('date_died').notNull(),
+  vmthId: text('vmth_id').notNull(),
+  wrmdId: text('wrmd_id'),
+  species: text('species').notNull(),
+  clinicalProblems: text('clinical_problems').notNull(),
+  results: text('results'),
+  isFinal: integer('is_final', { mode: 'boolean' }).default(false),
+  necropsyLink: text('necropsy_link'),
+  createdBy: text('created_by').notNull(),
+  createdAt: text('created_at').default(sql`(datetime('now'))`),
+  updatedBy: text('updated_by').notNull(),
+  updatedAt: text('updated_at').default(sql`(datetime('now'))`),
+});
+
 export const sessions = sqliteTable('sessions', {
   id: text('id').primaryKey(),
   initials: text('initials').notNull(),

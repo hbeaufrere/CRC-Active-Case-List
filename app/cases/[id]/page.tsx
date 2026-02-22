@@ -46,7 +46,7 @@ export default async function CaseDetailPage({
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Header */}
         <div className="mb-6">
-          <Link href="/dashboard" className="text-sm text-amber-700 hover:text-amber-900">
+          <Link href="/dashboard" className="text-sm text-blue-700 hover:text-blue-900">
             &larr; Back to Dashboard
           </Link>
           <div className="flex items-center justify-between mt-2">
@@ -62,7 +62,7 @@ export default async function CaseDetailPage({
             <div className="flex items-center gap-3">
               <Link
                 href={`/cases/${caseId}/edit`}
-                className="px-4 py-2 bg-amber-700 text-white text-sm font-medium rounded-lg hover:bg-amber-800 transition-colors"
+                className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 transition-colors"
               >
                 Edit Case
               </Link>
@@ -141,7 +141,7 @@ export default async function CaseDetailPage({
                   href={caseData.externalLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-amber-700 hover:text-amber-900 underline text-sm break-all"
+                  className="text-blue-700 hover:text-blue-900 underline text-sm break-all"
                 >
                   {caseData.externalLink}
                 </a>

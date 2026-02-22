@@ -24,7 +24,7 @@ export default function SummaryStats({ cases }: { cases: CaseWithDisplay[] }) {
         </div>
       )}
       {criticalHigh > 0 && (
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 text-amber-700 rounded-lg border border-amber-200">
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg border border-blue-200">
           <span className="font-semibold">{criticalHigh}</span>
           <span>critical/high</span>
         </div>

@@ -48,7 +48,7 @@ export default function LoginForm() {
           value={password}
           onChange={e => setPassword(e.target.value)}
           required
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
           placeholder="Enter shared password"
         />
       </div>
@@ -64,7 +64,7 @@ export default function LoginForm() {
           required
           minLength={2}
           maxLength={4}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none uppercase"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none uppercase"
           placeholder="e.g. JKM"
         />
         <p className="text-xs text-slate-500 mt-1">2-4 characters, used to track your changes</p>
@@ -77,7 +77,7 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-2.5 bg-amber-700 text-white font-medium rounded-lg hover:bg-amber-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full py-2.5 bg-blue-700 text-white font-medium rounded-lg hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? 'Signing in...' : 'Sign In'}
       </button>

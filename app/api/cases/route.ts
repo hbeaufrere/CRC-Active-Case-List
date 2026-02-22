@@ -42,8 +42,14 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  let session;
   try {
-    const session = await requireAuth();
+    session = await requireAuth();
+  } catch {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
     const body = await request.json();
 
     const caseNumber = body.caseNumber;
@@ -51,17 +57,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Case number is required' }, { status: 400 });
     }
 
+    // Check for duplicate case number
+    const existing = await db.select({ id: cases.id }).from(cases).where(eq(cases.caseNumber, caseNumber));
+    if (existing.length > 0) {
+      return NextResponse.json({ error: `Case number "${caseNumber}" already exists` }, { status: 409 });
+    }
+
     const result = await db.insert(cases).values({
       caseNumber,
-      category: body.category,
-      species: body.species,
+      category: body.category || 'rehab',
+      species: body.species || '',
       commonName: body.commonName || null,
       bandNumber: body.bandNumber || null,
       wrmdCaseNumber: body.wrmdCaseNumber || null,
       location: body.location || null,
-      activeProblems: body.activeProblems,
-      currentTreatments: body.currentTreatments,
-      plan: body.plan,
+      activeProblems: body.activeProblems || '',
+      currentTreatments: body.currentTreatments || '',
+      plan: body.plan || '',
       nextFollowUpDate: body.nextFollowUpDate || null,
       followUpNotes: body.followUpNotes || null,
       otherNotes: body.otherNotes || null,
@@ -74,17 +86,23 @@ export async function POST(request: NextRequest) {
       createdBy: session.initials,
     }).returning();
 
+    const newCase = result[0];
+
     // Log creation in history
     await db.insert(caseHistory).values({
-      caseId: result[0].id,
+      caseId: newCase.id,
       fieldChanged: 'case_created',
       newValue: caseNumber,
       changedBy: session.initials,
     });
 
-    return NextResponse.json(result[0], { status: 201 });
+    return NextResponse.json(newCase, { status: 201 });
   } catch (error) {
     console.error('Create case error:', error);
-    return NextResponse.json({ error: 'Failed to create case' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    if (message.includes('UNIQUE') || message.includes('unique')) {
+      return NextResponse.json({ error: 'A case with this number already exists' }, { status: 409 });
+    }
+    return NextResponse.json({ error: `Failed to create case: ${message}` }, { status: 500 });
   }
 }

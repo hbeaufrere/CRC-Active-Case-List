@@ -52,6 +52,33 @@ export interface Species {
   scientificName: string | null;
 }
 
+export interface Necropsy {
+  id: number;
+  dateDied: string;
+  vmthId: string;
+  wrmdId: string | null;
+  species: string;
+  clinicalProblems: string;
+  results: string | null;
+  isFinal: boolean | null;
+  necropsyLink: string | null;
+  createdBy: string;
+  createdAt: string | null;
+  updatedBy: string;
+  updatedAt: string | null;
+}
+
+export interface StatusChangeEntry {
+  caseId: number;
+  caseNumber: string;
+  species: string;
+  commonName: string | null;
+  oldStatus: string | null;
+  newStatus: string | null;
+  changedBy: string;
+  changedAt: string | null;
+}
+
 export interface Session {
   id: string;
   initials: string;
