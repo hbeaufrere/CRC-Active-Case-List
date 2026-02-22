@@ -143,7 +143,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
       </div>
 
       {/* Species, Nickname, Location */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className={`grid grid-cols-1 ${form.category === 'ambassador' ? 'sm:grid-cols-2' : 'sm:grid-cols-3'} gap-4`}>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Species *</label>
           <input
@@ -171,19 +171,21 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
             placeholder='e.g. "Apollo"'
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Location</label>
-          <select
-            value={form.location}
-            onChange={e => updateField('location', e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm bg-white"
-          >
-            <option value="">Select location...</option>
-            {LOCATION_OPTIONS.map(loc => (
-              <option key={loc} value={loc}>{loc}</option>
-            ))}
-          </select>
-        </div>
+        {form.category !== 'ambassador' && (
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Location</label>
+            <select
+              value={form.location}
+              onChange={e => updateField('location', e.target.value)}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm bg-white"
+            >
+              <option value="">Select location...</option>
+              {LOCATION_OPTIONS.map(loc => (
+                <option key={loc} value={loc}>{loc}</option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       {/* Medical fields */}
@@ -248,7 +250,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
       </div>
 
       {/* Status and Urgency */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className={`grid grid-cols-1 ${form.category === 'ambassador' ? 'sm:grid-cols-2' : 'sm:grid-cols-3'} gap-4`}>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Urgency</label>
           <select
@@ -273,27 +275,31 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
             ))}
           </select>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Intake Date</label>
-          <input
-            type="date"
-            value={form.intakeDate}
-            onChange={e => updateField('intakeDate', e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
-          />
-        </div>
+        {form.category !== 'ambassador' && (
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Intake Date</label>
+            <input
+              type="date"
+              value={form.intakeDate}
+              onChange={e => updateField('intakeDate', e.target.value)}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
+            />
+          </div>
+        )}
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">Intake Reason</label>
-        <input
-          type="text"
-          value={form.intakeReason}
-          onChange={e => updateField('intakeReason', e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
-          placeholder="Why the bird was admitted..."
-        />
-      </div>
+      {form.category !== 'ambassador' && (
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Intake Reason</label>
+          <input
+            type="text"
+            value={form.intakeReason}
+            onChange={e => updateField('intakeReason', e.target.value)}
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
+            placeholder="Why the bird was admitted..."
+          />
+        </div>
+      )}
 
       {/* External System Link */}
       <div>
