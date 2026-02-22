@@ -11,7 +11,7 @@ export default function Navbar({ initials }: { initials: string }) {
   }
 
   return (
-    <nav className="bg-amber-800 text-white shadow-lg no-print">
+    <nav className="bg-blue-800 text-white shadow-lg no-print">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-3">
@@ -22,12 +22,12 @@ export default function Navbar({ initials }: { initials: string }) {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm bg-amber-700 px-3 py-1 rounded-full">
+            <span className="text-sm bg-blue-700 px-3 py-1 rounded-full">
               {initials}
             </span>
             <button
               onClick={handleLogout}
-              className="text-sm px-3 py-1.5 rounded-md hover:bg-amber-700 transition-colors"
+              className="text-sm px-3 py-1.5 rounded-md hover:bg-blue-700 transition-colors"
             >
               Logout
             </button>

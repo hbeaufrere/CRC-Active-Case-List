@@ -31,7 +31,7 @@ export default async function EditCasePage({
       <Navbar initials={session.initials} />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="mb-6">
-          <Link href={`/cases/${caseId}`} className="text-sm text-amber-700 hover:text-amber-900">
+          <Link href={`/cases/${caseId}`} className="text-sm text-blue-700 hover:text-blue-900">
             &larr; Back to Case
           </Link>
           <h1 className="text-2xl font-bold text-slate-800 mt-2">

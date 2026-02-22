@@ -48,7 +48,7 @@ export default function CaseTable({ cases }: { cases: CaseWithDisplay[] }) {
                     <span className={`block w-2.5 h-2.5 rounded-full ${config.dotColor} ${c.displayUrgency === 'critical' ? 'animate-pulse' : ''}`} />
                   </td>
                   <td className="px-3 py-3">
-                    <Link href={`/cases/${c.id}`} className="text-amber-700 hover:text-amber-900 font-medium hover:underline">
+                    <Link href={`/cases/${c.id}`} className="text-blue-700 hover:text-blue-900 font-medium hover:underline">
                       {c.caseNumber}
                     </Link>
                     {c.commonName && (
@@ -56,7 +56,7 @@ export default function CaseTable({ cases }: { cases: CaseWithDisplay[] }) {
                     )}
                   </td>
                   <td className="px-3 py-3">
-                    <Link href={`/cases/${c.id}`} className="hover:text-amber-700">
+                    <Link href={`/cases/${c.id}`} className="hover:text-blue-700">
                       {c.species}
                     </Link>
                   </td>

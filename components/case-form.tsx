@@ -111,7 +111,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
                   value={cat}
                   checked={form.category === cat}
                   onChange={e => updateField('category', e.target.value)}
-                  className="text-amber-600 focus:ring-amber-500"
+                  className="text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-sm capitalize">{cat === 'rehab' ? 'Rehabilitation' : 'Ambassador'}</span>
               </label>
@@ -126,7 +126,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
             onChange={e => updateField('caseNumber', e.target.value)}
             required
             placeholder="Enter VMTH case number"
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
             readOnly={mode === 'edit'}
           />
         </div>
@@ -137,7 +137,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
             value={form.wrmdCaseNumber}
             onChange={e => updateField('wrmdCaseNumber', e.target.value)}
             placeholder="Enter WRMD case number"
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
           />
         </div>
       </div>
@@ -152,7 +152,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
             value={form.species}
             onChange={e => updateField('species', e.target.value)}
             required
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
             placeholder="Start typing..."
           />
           <datalist id="species-list">
@@ -167,7 +167,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
             type="text"
             value={form.commonName}
             onChange={e => updateField('commonName', e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
             placeholder='e.g. "Apollo"'
           />
         </div>
@@ -176,7 +176,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
           <select
             value={form.location}
             onChange={e => updateField('location', e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm bg-white"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm bg-white"
           >
             <option value="">Select location...</option>
             {LOCATION_OPTIONS.map(loc => (
@@ -194,7 +194,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
           onChange={e => updateField('activeProblems', e.target.value)}
           required
           rows={5}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
           placeholder="Current medical issues..."
         />
       </div>
@@ -206,7 +206,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
           onChange={e => updateField('currentTreatments', e.target.value)}
           required
           rows={3}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
           placeholder="Medications, therapies..."
         />
       </div>
@@ -218,7 +218,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
           onChange={e => updateField('plan', e.target.value)}
           required
           rows={2}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
           placeholder="Next steps..."
         />
       </div>
@@ -229,7 +229,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
           value={form.otherNotes}
           onChange={e => updateField('otherNotes', e.target.value)}
           rows={3}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
           placeholder="Additional notes..."
         />
       </div>
@@ -242,7 +242,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
             type="date"
             value={form.nextFollowUpDate}
             onChange={e => updateField('nextFollowUpDate', e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
           />
         </div>
       </div>
@@ -254,7 +254,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
           <select
             value={form.urgency}
             onChange={e => updateField('urgency', e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm bg-white"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm bg-white"
           >
             {(Object.entries(URGENCY_CONFIG) as [Urgency, typeof URGENCY_CONFIG[Urgency]][]).map(([key, val]) => (
               <option key={key} value={key}>{val.label}</option>
@@ -266,7 +266,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
           <select
             value={form.status}
             onChange={e => updateField('status', e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm bg-white"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm bg-white"
           >
             {(Object.entries(STATUS_CONFIG) as [Status, typeof STATUS_CONFIG[Status]][]).map(([key, val]) => (
               <option key={key} value={key}>{val.label}</option>
@@ -279,7 +279,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
             type="date"
             value={form.intakeDate}
             onChange={e => updateField('intakeDate', e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
           />
         </div>
       </div>
@@ -290,7 +290,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
           type="text"
           value={form.intakeReason}
           onChange={e => updateField('intakeReason', e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
           placeholder="Why the bird was admitted..."
         />
       </div>
@@ -302,7 +302,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
           type="url"
           value={form.externalLink}
           onChange={e => updateField('externalLink', e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
           placeholder="Paste link to this case in your system (e.g. https://...)"
         />
       </div>
@@ -325,7 +325,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="px-6 py-2 bg-amber-700 text-white text-sm font-medium rounded-lg hover:bg-amber-800 transition-colors disabled:opacity-50"
+          className="px-6 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 transition-colors disabled:opacity-50"
         >
           {loading ? 'Saving...' : mode === 'create' ? 'Create Case' : 'Save Changes'}
         </button>
