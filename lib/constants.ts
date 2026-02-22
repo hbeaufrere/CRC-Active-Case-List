@@ -73,3 +73,14 @@ export const SPECIES_LIST = [
 ];
 
 export const URGENCY_ORDER: Urgency[] = ['critical', 'high', 'moderate', 'stable', 'routine'];
+
+export const LOCATION_OPTIONS = [
+  'Nursery',
+  'Quarantine',
+  'J run',
+  'L flight',
+  'South flight',
+  'NE run',
+  'NE flight',
+  'O flight',
+] as const;

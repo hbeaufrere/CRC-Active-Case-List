@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     if (urgency) conditions.push(eq(cases.urgency, urgency));
     if (search) {
       conditions.push(
-        sql`(${cases.caseNumber} LIKE ${`%${search}%`} OR ${cases.species} LIKE ${`%${search}%`} OR ${cases.commonName} LIKE ${`%${search}%`} OR ${cases.activeProblems} LIKE ${`%${search}%`} OR ${cases.currentTreatments} LIKE ${`%${search}%`} OR ${cases.plan} LIKE ${`%${search}%`})`
+        sql`(${cases.caseNumber} LIKE ${`%${search}%`} OR ${cases.wrmdCaseNumber} LIKE ${`%${search}%`} OR ${cases.species} LIKE ${`%${search}%`} OR ${cases.commonName} LIKE ${`%${search}%`} OR ${cases.activeProblems} LIKE ${`%${search}%`} OR ${cases.currentTreatments} LIKE ${`%${search}%`} OR ${cases.plan} LIKE ${`%${search}%`})`
       );
     }
 
@@ -57,11 +57,14 @@ export async function POST(request: NextRequest) {
       species: body.species,
       commonName: body.commonName || null,
       bandNumber: body.bandNumber || null,
+      wrmdCaseNumber: body.wrmdCaseNumber || null,
+      location: body.location || null,
       activeProblems: body.activeProblems,
       currentTreatments: body.currentTreatments,
       plan: body.plan,
       nextFollowUpDate: body.nextFollowUpDate || null,
       followUpNotes: body.followUpNotes || null,
+      otherNotes: body.otherNotes || null,
       status: body.status || 'active',
       urgency: body.urgency || 'moderate',
       intakeDate: body.intakeDate || null,

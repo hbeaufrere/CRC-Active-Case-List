@@ -45,9 +45,10 @@ export default async function EditCasePage({
             initialData={{
               ...caseData,
               commonName: caseData.commonName ?? '',
-              bandNumber: caseData.bandNumber ?? '',
+              wrmdCaseNumber: caseData.wrmdCaseNumber ?? '',
+              location: caseData.location ?? '',
+              otherNotes: caseData.otherNotes ?? '',
               nextFollowUpDate: caseData.nextFollowUpDate ?? '',
-              followUpNotes: caseData.followUpNotes ?? '',
               intakeDate: caseData.intakeDate ?? '',
               intakeReason: caseData.intakeReason ?? '',
             }}

@@ -94,22 +94,18 @@ export default async function CaseDetailPage({
             <p className="text-slate-700 whitespace-pre-wrap">{caseData.currentTreatments}</p>
           </div>
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">Plan</h2>
+            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">Plan/Follow-up</h2>
             <p className="text-slate-700 whitespace-pre-wrap">{caseData.plan}</p>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">Follow-up</h2>
-            {caseData.nextFollowUpDate ? (
-              <>
-                <p className="text-slate-700">{formatDate(caseData.nextFollowUpDate)}</p>
-                {caseData.followUpNotes && (
-                  <p className="text-slate-500 text-sm mt-1">{caseData.followUpNotes}</p>
-                )}
-              </>
-            ) : (
-              <p className="text-slate-400">No follow-up scheduled</p>
+            {caseData.nextFollowUpDate && (
+              <p className="text-slate-500 text-sm mt-2">Next follow-up: {formatDate(caseData.nextFollowUpDate)}</p>
             )}
           </div>
+          {caseData.otherNotes && (
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+              <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">Other Notes</h2>
+              <p className="text-slate-700 whitespace-pre-wrap">{caseData.otherNotes}</p>
+            </div>
+          )}
         </div>
 
         {/* Metadata */}
@@ -125,8 +121,12 @@ export default async function CaseDetailPage({
               <p className="text-slate-700 font-medium">{caseData.intakeReason || 'N/A'}</p>
             </div>
             <div>
-              <span className="text-slate-500">Band/ID</span>
-              <p className="text-slate-700 font-medium">{caseData.bandNumber || 'N/A'}</p>
+              <span className="text-slate-500">WRMD #</span>
+              <p className="text-slate-700 font-medium">{caseData.wrmdCaseNumber || 'N/A'}</p>
+            </div>
+            <div>
+              <span className="text-slate-500">Location</span>
+              <p className="text-slate-700 font-medium">{caseData.location || 'N/A'}</p>
             </div>
             <div>
               <span className="text-slate-500">Created By</span>

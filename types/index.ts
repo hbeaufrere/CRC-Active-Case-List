@@ -19,6 +19,9 @@ export interface Case {
   urgency: Urgency;
   intakeDate: string | null;
   intakeReason: string | null;
+  wrmdCaseNumber: string | null;
+  location: string | null;
+  otherNotes: string | null;
   externalLink: string | null;
   createdAt: string | null;
   updatedAt: string | null;

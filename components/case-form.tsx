@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Case, Category, Status, Urgency } from '@/types';
-import { URGENCY_CONFIG, STATUS_CONFIG } from '@/lib/constants';
+import { URGENCY_CONFIG, STATUS_CONFIG, LOCATION_OPTIONS } from '@/lib/constants';
 
 interface CaseFormProps {
   initialData?: Partial<Case>;
@@ -21,17 +21,18 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
     category: initialData?.category || 'rehab' as Category,
     species: initialData?.species || '',
     commonName: initialData?.commonName || '',
-    bandNumber: initialData?.bandNumber || '',
     activeProblems: initialData?.activeProblems || '',
     currentTreatments: initialData?.currentTreatments || '',
     plan: initialData?.plan || '',
     nextFollowUpDate: initialData?.nextFollowUpDate || '',
-    followUpNotes: initialData?.followUpNotes || '',
     status: initialData?.status || 'active' as Status,
     urgency: initialData?.urgency || 'moderate' as Urgency,
     intakeDate: initialData?.intakeDate || new Date().toISOString().split('T')[0],
     intakeReason: initialData?.intakeReason || '',
     caseNumber: initialData?.caseNumber || '',
+    wrmdCaseNumber: initialData?.wrmdCaseNumber || '',
+    location: initialData?.location || '',
+    otherNotes: initialData?.otherNotes || '',
     externalLink: initialData?.externalLink || '',
   });
 
@@ -60,9 +61,10 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
       const body = {
         ...form,
         commonName: form.commonName || null,
-        bandNumber: form.bandNumber || null,
         nextFollowUpDate: form.nextFollowUpDate || null,
-        followUpNotes: form.followUpNotes || null,
+        wrmdCaseNumber: form.wrmdCaseNumber || null,
+        location: form.location || null,
+        otherNotes: form.otherNotes || null,
         intakeReason: form.intakeReason || null,
         externalLink: form.externalLink || null,
         caseNumber: form.caseNumber,
@@ -96,8 +98,8 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Category and Case Number */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* Category, VMTH Case Number, WRMD Case Number */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
           <div className="flex gap-4">
@@ -117,20 +119,30 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Case Number *</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">VMTH Case Number *</label>
           <input
             type="text"
             value={form.caseNumber}
             onChange={e => updateField('caseNumber', e.target.value)}
             required
-            placeholder="Enter case number from your system"
+            placeholder="Enter VMTH case number"
             className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
             readOnly={mode === 'edit'}
           />
         </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">WRMD Case Number</label>
+          <input
+            type="text"
+            value={form.wrmdCaseNumber}
+            onChange={e => updateField('wrmdCaseNumber', e.target.value)}
+            placeholder="Enter WRMD case number"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
+          />
+        </div>
       </div>
 
-      {/* Species and Name */}
+      {/* Species, Nickname, Location */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Species *</label>
@@ -160,13 +172,17 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Band/ID Number</label>
-          <input
-            type="text"
-            value={form.bandNumber}
-            onChange={e => updateField('bandNumber', e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
-          />
+          <label className="block text-sm font-medium text-slate-700 mb-1">Location</label>
+          <select
+            value={form.location}
+            onChange={e => updateField('location', e.target.value)}
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm bg-white"
+          >
+            <option value="">Select location...</option>
+            {LOCATION_OPTIONS.map(loc => (
+              <option key={loc} value={loc}>{loc}</option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -177,7 +193,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
           value={form.activeProblems}
           onChange={e => updateField('activeProblems', e.target.value)}
           required
-          rows={3}
+          rows={5}
           className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
           placeholder="Current medical issues..."
         />
@@ -196,7 +212,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">Plan *</label>
+        <label className="block text-sm font-medium text-slate-700 mb-1">Plan/Follow-up *</label>
         <textarea
           value={form.plan}
           onChange={e => updateField('plan', e.target.value)}
@@ -207,7 +223,18 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
         />
       </div>
 
-      {/* Follow-up */}
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1">Other Notes</label>
+        <textarea
+          value={form.otherNotes}
+          onChange={e => updateField('otherNotes', e.target.value)}
+          rows={3}
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
+          placeholder="Additional notes..."
+        />
+      </div>
+
+      {/* Follow-up date */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Next Follow-up Date</label>
@@ -216,16 +243,6 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
             value={form.nextFollowUpDate}
             onChange={e => updateField('nextFollowUpDate', e.target.value)}
             className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Follow-up Notes</label>
-          <input
-            type="text"
-            value={form.followUpNotes}
-            onChange={e => updateField('followUpNotes', e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-sm"
-            placeholder="What to do at follow-up..."
           />
         </div>
       </div>
