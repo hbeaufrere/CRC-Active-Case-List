@@ -134,13 +134,13 @@ export default function NecropsyTab() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">VMTH ID *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">VMACS ID *</label>
                 <input
                   type="text"
                   value={form.vmthId}
                   onChange={e => setForm(p => ({ ...p, vmthId: e.target.value }))}
                   required
-                  placeholder="VMTH case number"
+                  placeholder="VMACS case number"
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
                 />
               </div>
@@ -270,7 +270,7 @@ export default function NecropsyTab() {
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200">
                   <th className="px-3 py-3 text-left font-semibold text-slate-600">Date</th>
-                  <th className="px-3 py-3 text-left font-semibold text-slate-600">VMTH ID</th>
+                  <th className="px-3 py-3 text-left font-semibold text-slate-600">VMACS ID</th>
                   <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden sm:table-cell">WRMD ID</th>
                   <th className="px-3 py-3 text-left font-semibold text-slate-600">Species</th>
                   <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden md:table-cell">Clinical Problems</th>

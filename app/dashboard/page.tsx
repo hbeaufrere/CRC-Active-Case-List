@@ -46,57 +46,84 @@ export default async function DashboardPage({
     );
   }
 
-  const allCases = await db.select().from(cases).where(and(...conditions));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let allCases: any[] = [];
+  let rehabCountNum = 0;
+  let ambassadorCountNum = 0;
+  let statusChanges: StatusChangeEntry[] = [];
+  let necropsyCountNum = 0;
 
-  // Get counts for tabs (unfiltered)
-  const rehabCount = await db
-    .select({ count: sql<number>`COUNT(*)` })
-    .from(cases)
-    .where(and(eq(cases.category, 'rehab'), sql`${cases.status} IN ('active', 'permanent')`));
+  try {
+    allCases = await db.select().from(cases).where(and(...conditions));
+  } catch (error) {
+    console.error('Failed to fetch cases:', error);
+  }
 
-  const ambassadorCount = await db
-    .select({ count: sql<number>`COUNT(*)` })
-    .from(cases)
-    .where(and(eq(cases.category, 'ambassador'), sql`${cases.status} IN ('active', 'permanent')`));
+  try {
+    // Get counts for tabs (unfiltered)
+    const rehabCount = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(cases)
+      .where(and(eq(cases.category, 'rehab'), sql`${cases.status} IN ('active', 'permanent')`));
 
-  // Get recent status changes (last 10 cases changed to non-active)
-  const recentStatusChanges = await db
-    .select({
-      caseId: caseHistory.caseId,
-      caseNumber: cases.caseNumber,
-      species: cases.species,
-      commonName: cases.commonName,
-      oldValue: caseHistory.oldValue,
-      newValue: caseHistory.newValue,
-      changedBy: caseHistory.changedBy,
-      changedAt: caseHistory.changedAt,
-    })
-    .from(caseHistory)
-    .innerJoin(cases, eq(caseHistory.caseId, cases.id))
-    .where(
-      and(
-        eq(caseHistory.fieldChanged, 'status'),
-        sql`${caseHistory.newValue} NOT IN ('active', 'permanent')`
+    const ambassadorCount = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(cases)
+      .where(and(eq(cases.category, 'ambassador'), sql`${cases.status} IN ('active', 'permanent')`));
+
+    rehabCountNum = Number(rehabCount[0]?.count) || 0;
+    ambassadorCountNum = Number(ambassadorCount[0]?.count) || 0;
+  } catch (error) {
+    console.error('Failed to fetch case counts:', error);
+  }
+
+  try {
+    // Get recent status changes (last 10 cases changed to non-active)
+    const recentStatusChanges = await db
+      .select({
+        caseId: caseHistory.caseId,
+        caseNumber: cases.caseNumber,
+        species: cases.species,
+        commonName: cases.commonName,
+        oldValue: caseHistory.oldValue,
+        newValue: caseHistory.newValue,
+        changedBy: caseHistory.changedBy,
+        changedAt: caseHistory.changedAt,
+      })
+      .from(caseHistory)
+      .innerJoin(cases, eq(caseHistory.caseId, cases.id))
+      .where(
+        and(
+          eq(caseHistory.fieldChanged, 'status'),
+          sql`${caseHistory.newValue} NOT IN ('active', 'permanent')`
+        )
       )
-    )
-    .orderBy(desc(caseHistory.changedAt))
-    .limit(10);
+      .orderBy(desc(caseHistory.changedAt))
+      .limit(10);
 
-  const statusChanges: StatusChangeEntry[] = recentStatusChanges.map(r => ({
-    caseId: r.caseId,
-    caseNumber: r.caseNumber,
-    species: r.species,
-    commonName: r.commonName,
-    oldStatus: r.oldValue,
-    newStatus: r.newValue,
-    changedBy: r.changedBy,
-    changedAt: r.changedAt,
-  }));
+    statusChanges = recentStatusChanges.map(r => ({
+      caseId: r.caseId,
+      caseNumber: r.caseNumber,
+      species: r.species,
+      commonName: r.commonName,
+      oldStatus: r.oldValue,
+      newStatus: r.newValue,
+      changedBy: r.changedBy,
+      changedAt: r.changedAt,
+    }));
+  } catch (error) {
+    console.error('Failed to fetch recent status changes:', error);
+  }
 
-  // Get necropsy count
-  const necropsyCountResult = await db
-    .select({ count: sql<number>`COUNT(*)` })
-    .from(necropsies);
+  try {
+    // Get necropsy count
+    const necropsyCountResult = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(necropsies);
+    necropsyCountNum = Number(necropsyCountResult[0]?.count) || 0;
+  } catch (error) {
+    console.error('Failed to fetch necropsy count:', error);
+  }
 
   const enrichedCases = allCases.map(c => enrichCaseWithDisplay(c as Case));
   const sortedCases = sortCasesByAttention(enrichedCases);
@@ -110,10 +137,10 @@ export default async function DashboardPage({
         {/* Header row */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <DashboardTabs
-            rehabCount={Number(rehabCount[0]?.count) || 0}
-            ambassadorCount={Number(ambassadorCount[0]?.count) || 0}
+            rehabCount={rehabCountNum}
+            ambassadorCount={ambassadorCountNum}
             recentCount={statusChanges.length}
-            necropsyCount={Number(necropsyCountResult[0]?.count) || 0}
+            necropsyCount={necropsyCountNum}
           />
           {isCaseTab && (
             <Link
