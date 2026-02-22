@@ -341,7 +341,7 @@ export default function NecropsyTab() {
               </thead>
               <tbody>
                 {sortedNecropsies.map(n => (
-                  <tr key={n.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                  <tr key={n.id} onClick={() => startEdit(n)} className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer">
                     <td className="px-3 py-3 whitespace-nowrap">{n.dateDied}</td>
                     <td className="px-3 py-3 font-medium text-blue-700">{n.vmthId}</td>
                     <td className="px-3 py-3 hidden sm:table-cell text-slate-600">{n.wrmdId || '—'}</td>
@@ -363,7 +363,7 @@ export default function NecropsyTab() {
                         <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Prelim</span>
                       )}
                       {n.necropsyLink && (
-                        <a href={n.necropsyLink} target="_blank" rel="noopener noreferrer" className="ml-2 text-blue-600 hover:text-blue-800 text-xs underline">
+                        <a href={n.necropsyLink} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="ml-2 text-blue-600 hover:text-blue-800 text-xs underline">
                           Link
                         </a>
                       )}
@@ -372,7 +372,7 @@ export default function NecropsyTab() {
                       <div className="text-xs text-slate-500">{formatDateTime(n.updatedAt)}</div>
                       <div className="text-xs text-slate-400">by {n.updatedBy}</div>
                     </td>
-                    <td className="px-3 py-3 text-right">
+                    <td className="px-3 py-3 text-right" onClick={e => e.stopPropagation()}>
                       <div className="flex gap-2 justify-end">
                         <button
                           onClick={() => startEdit(n)}
