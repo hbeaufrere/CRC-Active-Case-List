@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { CaseWithDisplay } from '@/types';
 import { URGENCY_CONFIG } from '@/lib/constants';
 import UrgencyBadge from './urgency-badge';
@@ -8,6 +8,8 @@ import FollowUpIndicator from './follow-up-indicator';
 import { formatDateTime } from '@/lib/utils';
 
 export default function CaseTable({ cases }: { cases: CaseWithDisplay[] }) {
+  const router = useRouter();
+
   if (cases.length === 0) {
     return (
       <div className="text-center py-12 bg-white rounded-lg border border-slate-200">
@@ -42,23 +44,22 @@ export default function CaseTable({ cases }: { cases: CaseWithDisplay[] }) {
               return (
                 <tr
                   key={c.id}
+                  onClick={() => router.push(`/cases/${c.id}`)}
                   className={`border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer border-l-4 ${config.borderColor}`}
                 >
                   <td className="px-1 py-3">
                     <span className={`block w-2.5 h-2.5 rounded-full ${config.dotColor} ${c.displayUrgency === 'critical' ? 'animate-pulse' : ''}`} />
                   </td>
                   <td className="px-3 py-3">
-                    <Link href={`/cases/${c.id}`} className="text-blue-700 hover:text-blue-900 font-medium hover:underline">
+                    <span className="text-blue-700 font-medium">
                       {c.caseNumber}
-                    </Link>
+                    </span>
                     {c.commonName && (
                       <div className="text-xs text-slate-400 mt-0.5">{c.commonName}</div>
                     )}
                   </td>
                   <td className="px-3 py-3">
-                    <Link href={`/cases/${c.id}`} className="hover:text-blue-700">
-                      {c.species}
-                    </Link>
+                    {c.species}
                   </td>
                   <td className="px-3 py-3 hidden md:table-cell">
                     <div className="text-slate-600">{c.location || '—'}</div>
