@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     if (!body.vmthId) {
-      return NextResponse.json({ error: 'VMTH ID is required' }, { status: 400 });
+      return NextResponse.json({ error: 'VMACS ID is required' }, { status: 400 });
     }
     if (!body.dateDied) {
       return NextResponse.json({ error: 'Date died/euthanized is required' }, { status: 400 });

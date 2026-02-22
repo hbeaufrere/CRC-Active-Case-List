@@ -98,7 +98,7 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Category, VMTH Case Number, WRMD Case Number */}
+      {/* Category, VMACS Case Number, WRMD Case Number */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
@@ -119,13 +119,13 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">VMTH Case Number *</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">VMACS Case Number *</label>
           <input
             type="text"
             value={form.caseNumber}
             onChange={e => updateField('caseNumber', e.target.value)}
             required
-            placeholder="Enter VMTH case number"
+            placeholder="Enter VMACS case number"
             className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
             readOnly={mode === 'edit'}
           />
