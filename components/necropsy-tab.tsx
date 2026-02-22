@@ -1,8 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { Necropsy } from '@/types';
 import { formatDateTime } from '@/lib/utils';
+
+type NecSortColumn = 'species' | 'dateDied' | 'status';
+type SortDirection = 'asc' | 'desc';
+
+function SortIcon({ active, direction }: { active: boolean; direction: SortDirection }) {
+  return (
+    <svg className={`inline w-3.5 h-3.5 ml-1 ${active ? 'text-blue-700' : 'text-slate-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      {direction === 'asc' || !active ? (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={active && direction === 'desc' ? 'M19 9l-7 7-7-7' : 'M5 15l7-7 7 7'} />
+      ) : (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+      )}
+    </svg>
+  );
+}
 
 export default function NecropsyTab() {
   const [necropsies, setNecropsies] = useState<Necropsy[]>([]);
@@ -11,6 +26,41 @@ export default function NecropsyTab() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [error, setError] = useState('');
   const [speciesList, setSpeciesList] = useState<{ id: number; commonName: string }[]>([]);
+  const [sortColumn, setSortColumn] = useState<NecSortColumn | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+
+  function handleSort(column: NecSortColumn) {
+    if (sortColumn === column) {
+      if (sortDirection === 'asc') {
+        setSortDirection('desc');
+      } else {
+        setSortColumn(null);
+        setSortDirection('asc');
+      }
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  }
+
+  const sortedNecropsies = useMemo(() => {
+    if (!sortColumn) return necropsies;
+    return [...necropsies].sort((a, b) => {
+      let cmp = 0;
+      switch (sortColumn) {
+        case 'species':
+          cmp = a.species.localeCompare(b.species);
+          break;
+        case 'dateDied':
+          cmp = a.dateDied.localeCompare(b.dateDied);
+          break;
+        case 'status':
+          cmp = (a.isFinal ? 1 : 0) - (b.isFinal ? 1 : 0);
+          break;
+      }
+      return sortDirection === 'desc' ? -cmp : cmp;
+    });
+  }, [necropsies, sortColumn, sortDirection]);
 
   const emptyForm = {
     dateDied: new Date().toISOString().split('T')[0],
@@ -269,20 +319,29 @@ export default function NecropsyTab() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="px-3 py-3 text-left font-semibold text-slate-600">Date</th>
+                  <th className="px-3 py-3 text-left font-semibold text-slate-600 cursor-pointer select-none hover:text-blue-700 transition-colors" onClick={() => handleSort('dateDied')}>
+                    Date
+                    <SortIcon active={sortColumn === 'dateDied'} direction={sortDirection} />
+                  </th>
                   <th className="px-3 py-3 text-left font-semibold text-slate-600">VMACS ID</th>
                   <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden sm:table-cell">WRMD ID</th>
-                  <th className="px-3 py-3 text-left font-semibold text-slate-600">Species</th>
+                  <th className="px-3 py-3 text-left font-semibold text-slate-600 cursor-pointer select-none hover:text-blue-700 transition-colors" onClick={() => handleSort('species')}>
+                    Species
+                    <SortIcon active={sortColumn === 'species'} direction={sortDirection} />
+                  </th>
                   <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden md:table-cell">Clinical Problems</th>
                   <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden lg:table-cell">Results</th>
-                  <th className="px-3 py-3 text-left font-semibold text-slate-600">Status</th>
+                  <th className="px-3 py-3 text-left font-semibold text-slate-600 cursor-pointer select-none hover:text-blue-700 transition-colors" onClick={() => handleSort('status')}>
+                    Status
+                    <SortIcon active={sortColumn === 'status'} direction={sortDirection} />
+                  </th>
                   <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden sm:table-cell">Updated</th>
                   <th className="px-3 py-3 text-right font-semibold text-slate-600">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {necropsies.map(n => (
-                  <tr key={n.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                {sortedNecropsies.map(n => (
+                  <tr key={n.id} onClick={() => startEdit(n)} className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer">
                     <td className="px-3 py-3 whitespace-nowrap">{n.dateDied}</td>
                     <td className="px-3 py-3 font-medium text-blue-700">{n.vmthId}</td>
                     <td className="px-3 py-3 hidden sm:table-cell text-slate-600">{n.wrmdId || '—'}</td>
@@ -304,7 +363,7 @@ export default function NecropsyTab() {
                         <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Prelim</span>
                       )}
                       {n.necropsyLink && (
-                        <a href={n.necropsyLink} target="_blank" rel="noopener noreferrer" className="ml-2 text-blue-600 hover:text-blue-800 text-xs underline">
+                        <a href={n.necropsyLink} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="ml-2 text-blue-600 hover:text-blue-800 text-xs underline">
                           Link
                         </a>
                       )}
@@ -313,7 +372,7 @@ export default function NecropsyTab() {
                       <div className="text-xs text-slate-500">{formatDateTime(n.updatedAt)}</div>
                       <div className="text-xs text-slate-400">by {n.updatedBy}</div>
                     </td>
-                    <td className="px-3 py-3 text-right">
+                    <td className="px-3 py-3 text-right" onClick={e => e.stopPropagation()}>
                       <div className="flex gap-2 justify-end">
                         <button
                           onClick={() => startEdit(n)}
