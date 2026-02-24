@@ -12,6 +12,7 @@ import FollowUpIndicator from '@/components/follow-up-indicator';
 import CaseHistoryLog from '@/components/case-history-log';
 import Link from 'next/link';
 import DeleteCaseButton from '@/components/delete-case-button';
+import TransferNecropsyButton from '@/components/transfer-necropsy-button';
 
 export const dynamic = 'force-dynamic';
 
@@ -66,6 +67,9 @@ export default async function CaseDetailPage({
               >
                 Edit Case
               </Link>
+              {(caseData.status === 'active' || caseData.status === 'permanent') && (
+                <TransferNecropsyButton caseId={caseId} />
+              )}
               <DeleteCaseButton caseId={caseId} />
             </div>
           </div>

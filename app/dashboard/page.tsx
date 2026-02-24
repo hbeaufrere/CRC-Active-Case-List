@@ -12,6 +12,7 @@ import SearchFilterBar from '@/components/search-filter-bar';
 import SummaryStats from '@/components/summary-stats';
 import RecentStatusChanges from '@/components/recent-status-changes';
 import NecropsyTab from '@/components/necropsy-tab';
+import ExportPdfButton from '@/components/export-pdf-button';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -143,15 +144,18 @@ export default async function DashboardPage({
             necropsyCount={necropsyCountNum}
           />
           {isCaseTab && (
-            <Link
-              href="/cases/new"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 transition-colors no-print"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              New Case
-            </Link>
+            <div className="flex items-center gap-2">
+              <ExportPdfButton cases={sortedCases} category={category} />
+              <Link
+                href="/cases/new"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 transition-colors no-print"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                New Case
+              </Link>
+            </div>
           )}
         </div>
 

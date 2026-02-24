@@ -97,6 +97,7 @@ export default function CaseTable({ cases, category }: { cases: CaseWithDisplay[
             <tr className="bg-slate-50 border-b border-slate-200">
               <th className="w-3"></th>
               <th className="px-3 py-3 text-left font-semibold text-slate-600">Case #</th>
+              <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden sm:table-cell">WRMD #</th>
               <th className={sortableThClass} onClick={() => handleSort('species')}>
                 Species
                 <SortIcon active={sortColumn === 'species'} direction={sortDirection} />
@@ -137,6 +138,9 @@ export default function CaseTable({ cases, category }: { cases: CaseWithDisplay[
                     {c.commonName && (
                       <div className="text-xs text-slate-400 mt-0.5">{c.commonName}</div>
                     )}
+                  </td>
+                  <td className="px-3 py-3 hidden sm:table-cell text-slate-600">
+                    {c.wrmdCaseNumber || '—'}
                   </td>
                   <td className="px-3 py-3">
                     {c.species}
