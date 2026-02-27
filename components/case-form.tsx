@@ -127,7 +127,6 @@ export default function CaseForm({ initialData, mode, caseId }: CaseFormProps) {
             required
             placeholder="Enter VMACS case number"
             className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
-            readOnly={mode === 'edit'}
           />
         </div>
         <div>

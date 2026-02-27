@@ -50,7 +50,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
     };
 
     const fieldsToTrack = [
-      'species', 'commonName', 'bandNumber', 'wrmdCaseNumber', 'location',
+      'caseNumber', 'species', 'commonName', 'bandNumber', 'wrmdCaseNumber', 'location',
       'activeProblems', 'currentTreatments', 'plan', 'nextFollowUpDate',
       'followUpNotes', 'otherNotes',
       'status', 'urgency', 'intakeDate', 'intakeReason', 'category', 'externalLink',
