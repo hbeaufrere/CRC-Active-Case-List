@@ -1,6 +1,9 @@
 import { differenceInDays, format, parseISO } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 import type { Urgency, FollowUpStatus, Case, CaseWithDisplay } from '@/types';
 import { URGENCY_ORDER } from './constants';
+
+const LA_TZ = 'America/Los_Angeles';
 
 export function escalateUrgency(current: Urgency): Urgency {
   const idx = URGENCY_ORDER.indexOf(current);
@@ -26,8 +29,8 @@ export function calculateFollowUp(nextFollowUpDate: string | null): {
     };
   }
 
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const laNow = toZonedTime(new Date(), LA_TZ);
+  const today = new Date(laNow.getFullYear(), laNow.getMonth(), laNow.getDate());
   const followUp = parseISO(nextFollowUpDate);
   const followUpDay = new Date(followUp.getFullYear(), followUp.getMonth(), followUp.getDate());
   const daysUntil = differenceInDays(followUpDay, today);
@@ -99,7 +102,9 @@ export function sortCasesByAttention(cases: CaseWithDisplay[]): CaseWithDisplay[
 export function formatDateTime(isoString: string | null): string {
   if (!isoString) return '';
   try {
-    return format(parseISO(isoString), 'MMM d, yyyy h:mm a');
+    const utcDate = parseISO(isoString.endsWith('Z') ? isoString : isoString + 'Z');
+    const laDate = toZonedTime(utcDate, LA_TZ);
+    return format(laDate, 'MMM d, yyyy h:mm a');
   } catch {
     return isoString;
   }
