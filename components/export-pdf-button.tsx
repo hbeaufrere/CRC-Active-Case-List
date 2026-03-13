@@ -15,11 +15,13 @@ export default function ExportPdfButton({ cases, category }: { cases: CaseWithDi
     doc.setFontSize(9);
     doc.text(`Generated: ${date}`, 14, 21);
 
-    const headers = ['Case #', 'WRMD #', 'Species', 'Active Problems', 'Treatments', 'Plan', 'Notes'];
+    const headers = category === 'ambassador'
+      ? ['Case #', 'Name', 'Species', 'Active Problems', 'Treatments', 'Plan', 'Notes']
+      : ['Case #', 'WRMD #', 'Species', 'Active Problems', 'Treatments', 'Plan', 'Notes'];
 
     const rows = cases.map(c => [
       c.caseNumber,
-      c.wrmdCaseNumber || '',
+      category === 'ambassador' ? (c.commonName || '') : (c.wrmdCaseNumber || ''),
       c.species,
       c.activeProblems,
       c.currentTreatments,
