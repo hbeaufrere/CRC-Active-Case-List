@@ -151,12 +151,12 @@ export default function CaseTable({ cases, category }: { cases: CaseWithDisplay[
                     </td>
                   )}
                   <td className="px-3 py-3 hidden md:table-cell">
-                    <div className="max-w-xs truncate text-slate-600" title={c.activeProblems}>
+                    <div className="max-w-[200px] truncate text-slate-600" title={c.activeProblems}>
                       {c.activeProblems}
                     </div>
                   </td>
                   <td className="px-3 py-3 hidden lg:table-cell">
-                    <div className="max-w-xs truncate text-slate-600" title={c.currentTreatments}>
+                    <div className="max-w-[200px] truncate text-slate-600" title={c.currentTreatments}>
                       {c.currentTreatments}
                     </div>
                   </td>

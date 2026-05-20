@@ -165,7 +165,6 @@ export default async function CaseDetailPage({
 
         {/* History */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Change History</h2>
           <CaseHistoryLog history={history as CaseHistoryType[]} />
         </div>
       </main>
