@@ -6,10 +6,11 @@ import type { CaseWithDisplay, Category } from '@/types';
 import { URGENCY_CONFIG, URGENCY_ORDER } from '@/lib/constants';
 import UrgencyBadge from './urgency-badge';
 import FollowUpIndicator from './follow-up-indicator';
-import { formatDateTime } from '@/lib/utils';
+import TruncatedCell from './truncated-cell';
+import { compareCaseNumbers, formatDateTime } from '@/lib/utils';
 import type { FollowUpStatus } from '@/types';
 
-type SortColumn = 'species' | 'urgency' | 'followUp' | 'updated';
+type SortColumn = 'caseNumber' | 'wrmdCaseNumber' | 'species' | 'urgency' | 'followUp' | 'updated';
 type SortDirection = 'asc' | 'desc';
 
 const FOLLOW_UP_ORDER: Record<FollowUpStatus, number> = {
@@ -59,6 +60,17 @@ export default function CaseTable({ cases, category }: { cases: CaseWithDisplay[
     return [...cases].sort((a, b) => {
       let cmp = 0;
       switch (sortColumn) {
+        case 'caseNumber':
+        case 'wrmdCaseNumber': {
+          const aVal = sortColumn === 'caseNumber' ? a.caseNumber : a.wrmdCaseNumber;
+          const bVal = sortColumn === 'caseNumber' ? b.caseNumber : b.wrmdCaseNumber;
+          // Cases without a number stay at the bottom in both directions.
+          const aBlank = !(aVal || '').trim();
+          const bBlank = !(bVal || '').trim();
+          if (aBlank || bBlank) return compareCaseNumbers(aVal, bVal);
+          cmp = compareCaseNumbers(aVal, bVal);
+          break;
+        }
         case 'species':
           cmp = a.species.localeCompare(b.species);
           break;
@@ -96,8 +108,14 @@ export default function CaseTable({ cases, category }: { cases: CaseWithDisplay[
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">
               <th className="w-3"></th>
-              <th className="px-3 py-3 text-left font-semibold text-slate-600">Case #</th>
-              <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden sm:table-cell">WRMD #</th>
+              <th className={sortableThClass} onClick={() => handleSort('caseNumber')}>
+                Case #
+                <SortIcon active={sortColumn === 'caseNumber'} direction={sortDirection} />
+              </th>
+              <th className={`${sortableThClass} hidden sm:table-cell`} onClick={() => handleSort('wrmdCaseNumber')}>
+                WRMD #
+                <SortIcon active={sortColumn === 'wrmdCaseNumber'} direction={sortDirection} />
+              </th>
               <th className={sortableThClass} onClick={() => handleSort('species')}>
                 Species
                 <SortIcon active={sortColumn === 'species'} direction={sortDirection} />
@@ -151,14 +169,10 @@ export default function CaseTable({ cases, category }: { cases: CaseWithDisplay[
                     </td>
                   )}
                   <td className="px-3 py-3 hidden md:table-cell">
-                    <div className="max-w-[200px] truncate text-slate-600" title={c.activeProblems}>
-                      {c.activeProblems}
-                    </div>
+                    <TruncatedCell text={c.activeProblems} className="max-w-[200px] text-slate-600" />
                   </td>
                   <td className="px-3 py-3 hidden lg:table-cell">
-                    <div className="max-w-[200px] truncate text-slate-600" title={c.currentTreatments}>
-                      {c.currentTreatments}
-                    </div>
+                    <TruncatedCell text={c.currentTreatments} className="max-w-[200px] text-slate-600" />
                   </td>
                   <td className="px-3 py-3">
                     <UrgencyBadge urgency={c.displayUrgency} />

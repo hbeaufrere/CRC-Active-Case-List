@@ -99,6 +99,24 @@ export function sortCasesByAttention(cases: CaseWithDisplay[]): CaseWithDisplay[
   });
 }
 
+// Case numbers mix letters and digits (e.g. "25-0432", "V24-9"), so compare
+// them numerically-aware: "25-100" must sort after "25-99", not before it.
+const caseNumberCollator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
+
+/**
+ * Compares two case numbers. Blank values always sort last, regardless of the
+ * requested direction, so callers should apply their asc/desc flip only when
+ * both values are present.
+ */
+export function compareCaseNumbers(a: string | null | undefined, b: string | null | undefined): number {
+  const aVal = (a || '').trim();
+  const bVal = (b || '').trim();
+  if (!aVal && !bVal) return 0;
+  if (!aVal) return 1;
+  if (!bVal) return -1;
+  return caseNumberCollator.compare(aVal, bVal);
+}
+
 export function formatDateTime(isoString: string | null): string {
   if (!isoString) return '';
   try {
