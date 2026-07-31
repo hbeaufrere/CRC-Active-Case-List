@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import type { Necropsy } from '@/types';
+import TruncatedCell from './truncated-cell';
 import { formatDateTime } from '@/lib/utils';
 
 type NecSortColumn = 'species' | 'dateDied' | 'status';
@@ -347,14 +348,10 @@ export default function NecropsyTab() {
                     <td className="px-3 py-3 hidden sm:table-cell text-slate-600">{n.wrmdId || '—'}</td>
                     <td className="px-3 py-3">{n.species}</td>
                     <td className="px-3 py-3 hidden md:table-cell">
-                      <div className="max-w-xs truncate text-slate-600" title={n.clinicalProblems}>
-                        {n.clinicalProblems}
-                      </div>
+                      <TruncatedCell text={n.clinicalProblems} className="max-w-xs text-slate-600" />
                     </td>
                     <td className="px-3 py-3 hidden lg:table-cell">
-                      <div className="max-w-xs truncate text-slate-600" title={n.results || ''}>
-                        {n.results || '—'}
-                      </div>
+                      <TruncatedCell text={n.results} className="max-w-xs text-slate-600" />
                     </td>
                     <td className="px-3 py-3">
                       {n.isFinal ? (
