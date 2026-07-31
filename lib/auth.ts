@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { sessions } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, lt } from 'drizzle-orm';
 import { compare } from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { cookies } from 'next/headers';
@@ -51,6 +51,21 @@ export async function requireAuth(): Promise<Session> {
     throw new Error('Not authenticated');
   }
   return session;
+}
+
+/**
+ * Removes every session row whose expiry has passed.
+ *
+ * A row is otherwise only cleared on explicit logout, or when someone happens to
+ * make a request with an already-expired cookie — so every login from a tab that
+ * was simply closed used to linger forever. Called on login, which is infrequent
+ * enough to be free and frequent enough to keep the table small.
+ *
+ * expiresAt is stored as an ISO-8601 UTC string, so a lexicographic comparison
+ * is also a chronological one.
+ */
+export async function deleteExpiredSessions(): Promise<void> {
+  await db.delete(sessions).where(lt(sessions.expiresAt, new Date().toISOString()));
 }
 
 export async function destroySession(): Promise<void> {

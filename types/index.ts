@@ -33,7 +33,19 @@ export interface CaseWithDisplay extends Case {
   displayUrgency: Urgency;
   followUpStatus: FollowUpStatus;
   followUpLabel: string;
+  /** Whole days since intake, or null when no intake date is recorded. */
+  daysInCare: number | null;
 }
+
+export type SortColumn =
+  | 'caseNumber'
+  | 'wrmdCaseNumber'
+  | 'species'
+  | 'daysInCare'
+  | 'urgency'
+  | 'followUp'
+  | 'updated';
+export type SortDirection = 'asc' | 'desc';
 
 export interface CaseHistory {
   id: number;

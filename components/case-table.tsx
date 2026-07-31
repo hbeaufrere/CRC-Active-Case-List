@@ -1,25 +1,14 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import type { CaseWithDisplay, Category } from '@/types';
-import { URGENCY_CONFIG, URGENCY_ORDER } from '@/lib/constants';
+import type { CaseWithDisplay, Category, SortColumn, SortDirection } from '@/types';
+import { URGENCY_CONFIG } from '@/lib/constants';
 import UrgencyBadge from './urgency-badge';
 import FollowUpIndicator from './follow-up-indicator';
 import TruncatedCell from './truncated-cell';
-import { compareCaseNumbers, formatDateTime } from '@/lib/utils';
-import type { FollowUpStatus } from '@/types';
-
-type SortColumn = 'caseNumber' | 'wrmdCaseNumber' | 'species' | 'urgency' | 'followUp' | 'updated';
-type SortDirection = 'asc' | 'desc';
-
-const FOLLOW_UP_ORDER: Record<FollowUpStatus, number> = {
-  overdue: 0,
-  due_today: 1,
-  upcoming: 2,
-  scheduled: 3,
-  none: 4,
-};
+import { useCaseSort } from './case-sort-context';
+import { formatDateTime, sortCases } from '@/lib/utils';
 
 function SortIcon({ active, direction }: { active: boolean; direction: SortDirection }) {
   return (
@@ -35,58 +24,17 @@ function SortIcon({ active, direction }: { active: boolean; direction: SortDirec
 
 export default function CaseTable({ cases, category }: { cases: CaseWithDisplay[]; category?: Category }) {
   const router = useRouter();
-  const showLocation = category !== 'ambassador';
-  const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  // Location and days-in-care are rehab-only concepts.
+  const isRehab = category !== 'ambassador';
+  const { column, direction, toggleSort } = useCaseSort();
 
-  function handleSort(column: SortColumn) {
-    if (sortColumn === column) {
-      if (sortDirection === 'asc') {
-        setSortDirection('desc');
-      } else {
-        // Third click: reset to default order
-        setSortColumn(null);
-        setSortDirection('asc');
-      }
-    } else {
-      setSortColumn(column);
-      setSortDirection('asc');
-    }
-  }
+  // Ignore a days-in-care sort carried over from the rehab tab.
+  const sortColumn: SortColumn | null = !isRehab && column === 'daysInCare' ? null : column;
 
-  const sortedCases = useMemo(() => {
-    if (!sortColumn) return cases;
-
-    return [...cases].sort((a, b) => {
-      let cmp = 0;
-      switch (sortColumn) {
-        case 'caseNumber':
-        case 'wrmdCaseNumber': {
-          const aVal = sortColumn === 'caseNumber' ? a.caseNumber : a.wrmdCaseNumber;
-          const bVal = sortColumn === 'caseNumber' ? b.caseNumber : b.wrmdCaseNumber;
-          // Cases without a number stay at the bottom in both directions.
-          const aBlank = !(aVal || '').trim();
-          const bBlank = !(bVal || '').trim();
-          if (aBlank || bBlank) return compareCaseNumbers(aVal, bVal);
-          cmp = compareCaseNumbers(aVal, bVal);
-          break;
-        }
-        case 'species':
-          cmp = a.species.localeCompare(b.species);
-          break;
-        case 'urgency':
-          cmp = URGENCY_ORDER.indexOf(a.displayUrgency) - URGENCY_ORDER.indexOf(b.displayUrgency);
-          break;
-        case 'followUp':
-          cmp = FOLLOW_UP_ORDER[a.followUpStatus] - FOLLOW_UP_ORDER[b.followUpStatus];
-          break;
-        case 'updated':
-          cmp = (a.updatedAt || '').localeCompare(b.updatedAt || '');
-          break;
-      }
-      return sortDirection === 'desc' ? -cmp : cmp;
-    });
-  }, [cases, sortColumn, sortDirection]);
+  const sortedCases = useMemo(
+    () => sortCases(cases, sortColumn, direction),
+    [cases, sortColumn, direction]
+  );
 
   if (cases.length === 0) {
     return (
@@ -108,32 +56,38 @@ export default function CaseTable({ cases, category }: { cases: CaseWithDisplay[
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">
               <th className="w-3"></th>
-              <th className={sortableThClass} onClick={() => handleSort('caseNumber')}>
+              <th className={sortableThClass} onClick={() => toggleSort('caseNumber')}>
                 Case #
-                <SortIcon active={sortColumn === 'caseNumber'} direction={sortDirection} />
+                <SortIcon active={sortColumn === 'caseNumber'} direction={direction} />
               </th>
-              <th className={`${sortableThClass} hidden sm:table-cell`} onClick={() => handleSort('wrmdCaseNumber')}>
+              <th className={`${sortableThClass} hidden sm:table-cell`} onClick={() => toggleSort('wrmdCaseNumber')}>
                 WRMD #
-                <SortIcon active={sortColumn === 'wrmdCaseNumber'} direction={sortDirection} />
+                <SortIcon active={sortColumn === 'wrmdCaseNumber'} direction={direction} />
               </th>
-              <th className={sortableThClass} onClick={() => handleSort('species')}>
+              <th className={sortableThClass} onClick={() => toggleSort('species')}>
                 Species
-                <SortIcon active={sortColumn === 'species'} direction={sortDirection} />
+                <SortIcon active={sortColumn === 'species'} direction={direction} />
               </th>
-              {showLocation && <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden md:table-cell">Location</th>}
+              {isRehab && (
+                <th className={sortableThClass} onClick={() => toggleSort('daysInCare')} title="Days since intake">
+                  Days
+                  <SortIcon active={sortColumn === 'daysInCare'} direction={direction} />
+                </th>
+              )}
+              {isRehab && <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden md:table-cell">Location</th>}
               <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden md:table-cell">Active Problems</th>
               <th className="px-3 py-3 text-left font-semibold text-slate-600 hidden lg:table-cell">Treatments</th>
-              <th className={sortableThClass} onClick={() => handleSort('urgency')}>
+              <th className={sortableThClass} onClick={() => toggleSort('urgency')}>
                 Urgency
-                <SortIcon active={sortColumn === 'urgency'} direction={sortDirection} />
+                <SortIcon active={sortColumn === 'urgency'} direction={direction} />
               </th>
-              <th className={sortableThClass} onClick={() => handleSort('followUp')}>
+              <th className={sortableThClass} onClick={() => toggleSort('followUp')}>
                 Follow-up
-                <SortIcon active={sortColumn === 'followUp'} direction={sortDirection} />
+                <SortIcon active={sortColumn === 'followUp'} direction={direction} />
               </th>
-              <th className={`${sortableThClass} hidden sm:table-cell`} onClick={() => handleSort('updated')}>
+              <th className={`${sortableThClass} hidden sm:table-cell`} onClick={() => toggleSort('updated')}>
                 Updated
-                <SortIcon active={sortColumn === 'updated'} direction={sortDirection} />
+                <SortIcon active={sortColumn === 'updated'} direction={direction} />
               </th>
             </tr>
           </thead>
@@ -163,7 +117,12 @@ export default function CaseTable({ cases, category }: { cases: CaseWithDisplay[
                   <td className="px-3 py-3">
                     {c.species}
                   </td>
-                  {showLocation && (
+                  {isRehab && (
+                    <td className="px-3 py-3 text-slate-600 whitespace-nowrap">
+                      {c.daysInCare == null ? '—' : `${c.daysInCare}d`}
+                    </td>
+                  )}
+                  {isRehab && (
                     <td className="px-3 py-3 hidden md:table-cell">
                       <div className="text-slate-600">{c.location || '—'}</div>
                     </td>

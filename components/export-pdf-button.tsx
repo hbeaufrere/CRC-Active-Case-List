@@ -1,33 +1,69 @@
 'use client';
 
-import type { CaseWithDisplay } from '@/types';
+import type { CaseWithDisplay, SortColumn } from '@/types';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { useCaseSort } from './case-sort-context';
+import { sortCases } from '@/lib/utils';
 
 export default function ExportPdfButton({ cases, category }: { cases: CaseWithDisplay[]; category: string }) {
+  const { column, direction } = useCaseSort();
+
   function exportPdf() {
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'letter' });
-    const title = category === 'ambassador' ? 'Ambassador Case List' : 'Rehabilitation Case List';
+    const isRehab = category !== 'ambassador';
+    const title = isRehab ? 'Rehabilitation Case List' : 'Ambassador Case List';
     const date = new Date().toLocaleDateString();
+
+    // Match the on-screen order: `cases` already reflects the active search and
+    // urgency filter, and this applies whatever column the person sorted by.
+    const sortColumn: SortColumn | null = !isRehab && column === 'daysInCare' ? null : column;
+    const rowsSource = sortCases(cases, sortColumn, direction);
 
     doc.setFontSize(14);
     doc.text(title, 14, 15);
     doc.setFontSize(9);
     doc.text(`Generated: ${date}`, 14, 21);
 
-    const headers = category === 'ambassador'
-      ? ['Case #', 'Name', 'Species', 'Active Problems', 'Treatments', 'Plan', 'Notes']
-      : ['Case #', 'WRMD #', 'Species', 'Active Problems', 'Treatments', 'Plan', 'Notes'];
+    const headers = isRehab
+      ? ['Case #', 'WRMD #', 'Species', 'Days', 'Active Problems', 'Treatments', 'Plan', 'Notes']
+      : ['Case #', 'Name', 'Species', 'Active Problems', 'Treatments', 'Plan', 'Notes'];
 
-    const rows = cases.map(c => [
-      c.caseNumber,
-      category === 'ambassador' ? (c.commonName || '') : (c.wrmdCaseNumber || ''),
-      c.species,
-      c.activeProblems,
-      c.currentTreatments,
-      c.plan,
-      '', // empty notes column for manual writing
-    ]);
+    const rows = rowsSource.map(c => {
+      const shared = [c.species];
+      if (isRehab) shared.push(c.daysInCare == null ? '' : `${c.daysInCare}d`);
+      return [
+        c.caseNumber,
+        isRehab ? (c.wrmdCaseNumber || '') : (c.commonName || ''),
+        ...shared,
+        c.activeProblems,
+        c.currentTreatments,
+        c.plan,
+        '', // empty notes column for manual writing
+      ];
+    });
+
+    // Letter landscape leaves ~251mm between the margins.
+    const columnStyles: Record<number, { cellWidth: number }> = isRehab
+      ? {
+          0: { cellWidth: 17 },  // Case #
+          1: { cellWidth: 17 },  // WRMD #
+          2: { cellWidth: 26 },  // Species
+          3: { cellWidth: 12 },  // Days
+          4: { cellWidth: 45 },  // Active Problems
+          5: { cellWidth: 45 },  // Treatments
+          6: { cellWidth: 45 },  // Plan
+          7: { cellWidth: 42 },  // Notes
+        }
+      : {
+          0: { cellWidth: 18 },  // Case #
+          1: { cellWidth: 22 },  // Name
+          2: { cellWidth: 28 },  // Species
+          3: { cellWidth: 47 },  // Active Problems
+          4: { cellWidth: 47 },  // Treatments
+          5: { cellWidth: 47 },  // Plan
+          6: { cellWidth: 42 },  // Notes
+        };
 
     autoTable(doc, {
       head: [headers],
@@ -45,15 +81,7 @@ export default function ExportPdfButton({ cases, category }: { cases: CaseWithDi
         fontStyle: 'bold',
         fontSize: 7.5,
       },
-      columnStyles: {
-        0: { cellWidth: 18 },  // Case #
-        1: { cellWidth: 18 },  // WRMD #
-        2: { cellWidth: 28 },  // Species
-        3: { cellWidth: 50 },  // Active Problems
-        4: { cellWidth: 50 },  // Treatments
-        5: { cellWidth: 50 },  // Plan
-        6: { cellWidth: 40 },  // Notes
-      },
+      columnStyles,
       alternateRowStyles: {
         fillColor: [248, 250, 252],
       },
