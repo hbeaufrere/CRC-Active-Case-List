@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyPassword, createSession, setSessionCookie } from '@/lib/auth';
+import { verifyPassword, createSession, setSessionCookie, deleteExpiredSessions } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,6 +17,9 @@ export async function POST(request: NextRequest) {
     if (!valid) {
       return NextResponse.json({ error: 'Invalid password' }, { status: 401 });
     }
+
+    // Housekeeping — never block a login on it.
+    await deleteExpiredSessions().catch(err => console.error('Session cleanup failed:', err));
 
     const token = await createSession(initials);
     const cookie = setSessionCookie(token);

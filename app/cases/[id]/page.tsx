@@ -124,6 +124,14 @@ export default async function CaseDetailPage({
             )}
             {caseData.category !== 'ambassador' && (
               <div>
+                <span className="text-slate-500">Days in Care</span>
+                <p className="text-slate-700 font-medium">
+                  {enriched.daysInCare == null ? 'N/A' : `${enriched.daysInCare}d`}
+                </p>
+              </div>
+            )}
+            {caseData.category !== 'ambassador' && (
+              <div>
                 <span className="text-slate-500">Intake Reason</span>
                 <p className="text-slate-700 font-medium">{caseData.intakeReason || 'N/A'}</p>
               </div>

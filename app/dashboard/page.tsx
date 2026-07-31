@@ -3,7 +3,7 @@ import { cases, caseHistory, necropsies } from '@/db/schema';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import { enrichCaseWithDisplay, sortCasesByAttention } from '@/lib/utils';
+import { enrichCaseWithDisplay, sortCasesByDefault } from '@/lib/utils';
 import type { Case, Category, Urgency, StatusChangeEntry } from '@/types';
 import Navbar from '@/components/navbar';
 import CaseTable from '@/components/case-table';
@@ -13,6 +13,8 @@ import SummaryStats from '@/components/summary-stats';
 import RecentStatusChanges from '@/components/recent-status-changes';
 import NecropsyTab from '@/components/necropsy-tab';
 import ExportPdfButton from '@/components/export-pdf-button';
+import AutoRefresh from '@/components/auto-refresh';
+import { CaseSortProvider } from '@/components/case-sort-context';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -127,63 +129,68 @@ export default async function DashboardPage({
   }
 
   const enrichedCases = allCases.map(c => enrichCaseWithDisplay(c as Case));
-  const sortedCases = sortCasesByAttention(enrichedCases);
+  const sortedCases = sortCasesByDefault(enrichedCases);
 
   const isCaseTab = activeTab === 'rehab' || activeTab === 'ambassador';
 
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar initials={session.initials} />
+      {/* Follow-up state is computed server-side, so a tab left open goes stale. */}
+      <AutoRefresh />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Header row */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <DashboardTabs
-            rehabCount={rehabCountNum}
-            ambassadorCount={ambassadorCountNum}
-            recentCount={statusChanges.length}
-            necropsyCount={necropsyCountNum}
-          />
+        {/* The export button and the table must agree on the sort order. */}
+        <CaseSortProvider>
+          {/* Header row */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <DashboardTabs
+              rehabCount={rehabCountNum}
+              ambassadorCount={ambassadorCountNum}
+              recentCount={statusChanges.length}
+              necropsyCount={necropsyCountNum}
+            />
+            {isCaseTab && (
+              <div className="flex items-center gap-2">
+                <ExportPdfButton cases={sortedCases} category={category} />
+                <Link
+                  href="/cases/new"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 transition-colors no-print"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  New Case
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Tab content */}
           {isCaseTab && (
-            <div className="flex items-center gap-2">
-              <ExportPdfButton cases={sortedCases} category={category} />
-              <Link
-                href="/cases/new"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 transition-colors no-print"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                New Case
-              </Link>
-            </div>
+            <>
+              {/* Summary stats */}
+              <div className="mb-4">
+                <SummaryStats cases={sortedCases} />
+              </div>
+
+              {/* Search and filters */}
+              <div className="mb-4 no-print">
+                <SearchFilterBar />
+              </div>
+
+              {/* Case table */}
+              <CaseTable cases={sortedCases} category={category} />
+            </>
           )}
-        </div>
 
-        {/* Tab content */}
-        {isCaseTab && (
-          <>
-            {/* Summary stats */}
-            <div className="mb-4">
-              <SummaryStats cases={sortedCases} />
-            </div>
+          {activeTab === 'recent' && (
+            <RecentStatusChanges changes={statusChanges} />
+          )}
 
-            {/* Search and filters */}
-            <div className="mb-4 no-print">
-              <SearchFilterBar />
-            </div>
-
-            {/* Case table */}
-            <CaseTable cases={sortedCases} category={category} />
-          </>
-        )}
-
-        {activeTab === 'recent' && (
-          <RecentStatusChanges changes={statusChanges} />
-        )}
-
-        {activeTab === 'necropsies' && (
-          <NecropsyTab />
-        )}
+          {activeTab === 'necropsies' && (
+            <NecropsyTab />
+          )}
+        </CaseSortProvider>
       </main>
     </div>
   );
