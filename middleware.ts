@@ -10,6 +10,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // The CRC Control Board reads the annual exams with a sync token (checked in the route itself)
+  if (pathname.startsWith('/api/annual-exams') && request.headers.get('authorization')) {
+    return NextResponse.next();
+  }
+
   // Redirect to login if no session cookie
   if (!token) {
     const loginUrl = new URL('/login', request.url);
