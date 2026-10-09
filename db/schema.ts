@@ -66,3 +66,23 @@ export const sessions = sqliteTable('sessions', {
   createdAt: text('created_at').default(sql`(datetime('now'))`),
   expiresAt: text('expires_at').notNull(),
 });
+
+// Annual exams of the resident (ambassador) birds — the tables are created on first use (lib/annual-exams.ts)
+export const annualExamTests = sqliteTable('annual_exam_tests', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  name: text('name').notNull(),
+  frequency: text('frequency'),
+  note: text('note'),
+  sort: integer('sort').default(0),
+});
+
+export const annualExamRecords = sqliteTable('annual_exam_records', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  year: text('year').notNull(),            // academic year, e.g. 2026-27
+  caseId: integer('case_id').notNull().references(() => cases.id),
+  test: text('test').notNull(),
+  doneDate: text('done_date'),
+  doneBy: text('done_by'),
+  note: text('note'),
+  updatedAt: text('updated_at').default(sql`(datetime('now'))`),
+});

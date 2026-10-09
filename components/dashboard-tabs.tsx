@@ -2,18 +2,20 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
-type TabKey = 'rehab' | 'ambassador' | 'recent' | 'necropsies';
+type TabKey = 'rehab' | 'ambassador' | 'recent' | 'necropsies' | 'annual';
 
 export default function DashboardTabs({
   rehabCount,
   ambassadorCount,
   recentCount,
   necropsyCount,
+  showAnnual = false,
 }: {
   rehabCount: number;
   ambassadorCount: number;
   recentCount: number;
   necropsyCount: number;
+  showAnnual?: boolean;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -34,6 +36,8 @@ export default function DashboardTabs({
     { key: 'ambassador', label: 'Ambassadors', count: ambassadorCount },
     { key: 'recent', label: 'Recent Changes', count: recentCount },
     { key: 'necropsies', label: 'Necropsies', count: necropsyCount },
+    // shown only when switched on from the CRC Control Board
+    ...(showAnnual ? [{ key: 'annual' as TabKey, label: 'Annual exams', count: ambassadorCount }] : []),
   ];
 
   return (
