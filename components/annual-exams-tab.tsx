@@ -80,7 +80,14 @@ export default function AnnualExamsTab() {
 
   async function quickDone(b: Bird, test: string) {
     const before = rec.get(`${b.id}|${test}`);
-    const note = /wnv/i.test(test) && lot ? `Lot ${lot}` : (before?.note || '');
+    let useLot = lot;
+    if (/wnv/i.test(test) && !useLot) {            // asked once per season, then stamped on every booster
+      const v = window.prompt('WNV vaccine lot (and expiry) for this exam season:', '');
+      if (v === null) return;
+      useLot = v.trim();
+      if (useLot) await saveLot(useLot);
+    }
+    const note = /wnv/i.test(test) && useLot ? `Lot ${useLot}` : (before?.note || '');
     try {
       await putCell(b, test, { status: 'done', doneDate: examDate, note });
       setRecent(rs => [{ key: `${b.id}|${test}|${Date.now()}`, label: `${b.name || b.species}: ${test}`,
@@ -190,7 +197,7 @@ export default function AnnualExamsTab() {
       {/* exam-day header: used for every entry until changed */}
       <div className="sticky top-0 z-20 bg-blue-50 border border-blue-100 rounded-lg p-2 space-y-2 text-sm shadow-sm">
         <div className="grid grid-cols-[1.4fr_0.7fr_1.2fr] gap-2">
-          <label className="text-[11px] text-slate-600">Exam date<input type="date" value={examDate} onChange={e => { setExamDate(e.target.value); try { sessionStorage.setItem('annual-exam-date', e.target.value); } catch { /* ignore */ } }} className="block w-full border rounded px-1.5 py-1 text-sm bg-white" /></label>
+          <label className="text-[11px] text-slate-600">Exam date<input type="date" value={examDate} onChange={e => { setExamDate(e.target.value); try { sessionStorage.setItem('annual-exam-date', e.target.value); } catch { /* ignore */ } }} className={`block w-full border rounded px-1.5 py-1 text-sm ${examDate !== localToday() ? 'bg-amber-100 border-amber-400' : 'bg-white'}`} />{examDate !== localToday() && <span className="text-[10px] text-amber-700">not today</span>}</label>
           <div className="text-[11px] text-slate-600">By<span className="block px-1.5 py-1 rounded bg-white border font-semibold text-slate-800 text-sm">{grid.me || '—'}</span></div>
           <label className="text-[11px] text-slate-600">WNV lot<input value={lot} onChange={e => setLot(e.target.value)} onBlur={e => saveLot(e.target.value)} placeholder="lot / exp" className="block w-full border rounded px-1.5 py-1 text-sm bg-white" /></label>
         </div>
@@ -207,7 +214,7 @@ export default function AnnualExamsTab() {
         <div className="bg-white rounded-lg shadow-sm p-2 text-xs text-slate-600 flex flex-wrap gap-2 items-center">
           <span className="font-medium">Just recorded:</span>
           {recent.map(r => <span key={r.key} className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-800 rounded-full pl-2 pr-1 py-0.5">{r.label}
-            <button onClick={async () => { await r.undo(); setRecent(rs => rs.filter(x => x.key !== r.key)); load(grid.year); }} className="px-1.5 rounded-full hover:bg-emerald-100 underline">undo</button></span>)}
+            <button onClick={async () => { await r.undo(); setRecent(rs => rs.filter(x => x.key !== r.key)); load(grid.year); }} className="ml-1 px-3 py-1 rounded-full bg-white border border-emerald-300 text-emerald-800 font-medium">Undo</button></span>)}
         </div>
       )}
 
