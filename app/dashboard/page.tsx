@@ -13,7 +13,7 @@ import SummaryStats from '@/components/summary-stats';
 import RecentStatusChanges from '@/components/recent-status-changes';
 import NecropsyTab from '@/components/necropsy-tab';
 import AnnualExamsTab from '@/components/annual-exams-tab';
-import { annualExamsEnabled } from '@/lib/annual-exams';
+import { annualExamBirdCount, annualExamsEnabled } from '@/lib/annual-exams';
 import ExportPdfButton from '@/components/export-pdf-button';
 import AutoRefresh from '@/components/auto-refresh';
 import { CaseSortProvider } from '@/components/case-sort-context';
@@ -135,6 +135,7 @@ export default async function DashboardPage({
 
   const isCaseTab = activeTab === 'rehab' || activeTab === 'ambassador';
   const showAnnual = await annualExamsEnabled();
+  const annualCount = showAnnual ? await annualExamBirdCount() : 0;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -152,6 +153,7 @@ export default async function DashboardPage({
               recentCount={statusChanges.length}
               necropsyCount={necropsyCountNum}
               showAnnual={showAnnual}
+              annualCount={annualCount}
             />
             {isCaseTab && (
               <div className="flex items-center gap-2">

@@ -10,12 +10,14 @@ export default function DashboardTabs({
   recentCount,
   necropsyCount,
   showAnnual = false,
+  annualCount = 0,
 }: {
   rehabCount: number;
   ambassadorCount: number;
   recentCount: number;
   necropsyCount: number;
   showAnnual?: boolean;
+  annualCount?: number;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -37,7 +39,7 @@ export default function DashboardTabs({
     { key: 'recent', label: 'Recent Changes', count: recentCount },
     { key: 'necropsies', label: 'Necropsies', count: necropsyCount },
     // shown only when switched on from the CRC Control Board
-    ...(showAnnual ? [{ key: 'annual' as TabKey, label: 'Annual exams', count: ambassadorCount }] : []),
+    ...(showAnnual ? [{ key: 'annual' as TabKey, label: 'Annual exams', count: annualCount }] : []),
   ];
 
   return (
