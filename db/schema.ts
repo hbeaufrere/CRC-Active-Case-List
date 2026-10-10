@@ -77,16 +77,3 @@ export const annualExamTests = sqliteTable('annual_exam_tests', {
   sort: integer('sort').default(0),
 });
 
-export const annualExamRecords = sqliteTable('annual_exam_records', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  year: text('year').notNull(),            // academic year, e.g. 2026-27
-  caseId: integer('case_id').notNull().references(() => cases.id),
-  test: text('test').notNull(),
-  doneDate: text('done_date'),
-  doneBy: text('done_by'),
-  note: text('note'),
-  planned: integer('planned').default(0),
-  status: text('status').default(''),
-  abnormal: integer('abnormal').default(0),
-  updatedAt: text('updated_at').default(sql`(datetime('now'))`),
-});

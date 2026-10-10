@@ -20,12 +20,12 @@ export async function PUT(request: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Not logged in' }, { status: 401 });
   if (!(await annualExamsEnabled())) return NextResponse.json({ error: 'Not available' }, { status: 404 });
   const b = await request.json();
-  const caseId = Number(b.caseId);
-  if (!caseId || !b.test) return NextResponse.json({ error: 'Missing bird or item' }, { status: 400 });
+  const birdNo = String(b.birdNo || '').replace(/\D/g, '');
+  if (!birdNo || !b.test) return NextResponse.json({ error: 'Missing bird or item' }, { status: 400 });
   const status = String(b.status ?? (b.doneDate ? 'done' : ''));
   if ((status === 'failed' || status === 'deferred') && !String(b.note || '').trim())
     return NextResponse.json({ error: 'Please give the reason in the note' }, { status: 400 });
-  await recordAnnualExamCell(b.year || academicYear(), caseId, String(b.test), status, (b.doneDate || '').trim() || null,
+  await recordAnnualExamCell(b.year || academicYear(), birdNo, String(b.test), status, (b.doneDate || '').trim() || null,
     session.initials, (b.note || '').trim() || null, !!b.abnormal);
   return NextResponse.json({ ok: true, doneBy: status ? cleanInitials(session.initials) : '' });
 }

@@ -8,9 +8,9 @@ export async function PUT(request: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Not logged in' }, { status: 401 });
   if (!(await annualExamsEnabled())) return NextResponse.json({ error: 'Not available' }, { status: 404 });
   const b = await request.json();
-  const caseId = Number(b.caseId);
-  if (!caseId) return NextResponse.json({ error: 'Missing bird' }, { status: 400 });
-  await recordAnnualExamSheet(b.year || academicYear(), caseId, {
+  const birdNo = String(b.birdNo || '').replace(/\D/g, '');
+  if (!birdNo) return NextResponse.json({ error: 'Missing bird' }, { status: 400 });
+  await recordAnnualExamSheet(b.year || academicYear(), birdNo, {
     weightG: String(b.weightG || '').replace(/[^\d.]/g, ''), bcs: String(b.bcs || '').trim(), findings: String(b.findings || '').trim(),
     abnormal: !!b.abnormal, examDate: String(b.examDate || '').trim() }, session.initials);
   return NextResponse.json({ ok: true });

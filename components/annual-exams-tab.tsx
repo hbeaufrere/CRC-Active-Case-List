@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 type Test = { id: number; name: string; group: string; frequency: string; note: string };
-type Bird = { id: number; caseNumber: string; name: string | null; species: string; location: string | null };
-type Rec = { caseId: number; test: string; doneDate: string | null; doneBy: string | null; note: string | null; planned: boolean; status: string; abnormal: boolean };
-type Sheet = { caseId: number; planNote: string; prevWeightG: string; weightG: string; bcs: string; findings: string; abnormal: boolean; examDate: string; doneBy: string };
+type Bird = { id: string; caseNumber: string; name: string | null; species: string; location: string | null; priority: string };
+type Rec = { birdNo: string; test: string; doneDate: string | null; doneBy: string | null; note: string | null; planned: boolean; status: string; abnormal: boolean };
+type Sheet = { birdNo: string; planNote: string; prevWeightG: string; weightG: string; bcs: string; findings: string; abnormal: boolean; examDate: string; doneBy: string };
 type Grid = { year: string; tests: Test[]; birds: Bird[]; records: Rec[]; sheets: Sheet[]; wnvLot: string; me: string };
 type Recent = { key: string; label: string; undo: () => Promise<void> };
 
@@ -59,10 +59,10 @@ export default function AnnualExamsTab() {
 
   const rec = useMemo(() => {
     const m = new Map<string, Rec>();
-    grid?.records.forEach(r => m.set(`${r.caseId}|${r.test}`, r));
+    grid?.records.forEach(r => m.set(`${r.birdNo}|${r.test}`, r));
     return m;
   }, [grid]);
-  const sheets = useMemo(() => new Map((grid?.sheets || []).map(s => [s.caseId, s])), [grid]);
+  const sheets = useMemo(() => new Map((grid?.sheets || []).map(s => [s.birdNo, s])), [grid]);
   const hasPlan = !!grid?.records.some(r => r.planned);
 
   function itemsFor(b: Bird) {
@@ -74,7 +74,7 @@ export default function AnnualExamsTab() {
 
   async function putCell(b: Bird, test: string, body: { status: string; doneDate?: string; note?: string; abnormal?: boolean }) {
     const r = await fetch('/api/annual-exams', { method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ year: grid!.year, caseId: b.id, test, ...body }) });
+      body: JSON.stringify({ year: grid!.year, birdNo: b.id, test, ...body }) });
     if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.error || 'Not saved — are you still logged in and online?'); }
   }
 
@@ -109,7 +109,7 @@ export default function AnnualExamsTab() {
     if (!sheet) return;
     setSaving(true);
     const r = await fetch('/api/annual-exams/sheet', { method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ year: grid!.year, caseId: sheet.bird.id, weightG: sheet.weightG, bcs: sheet.bcs, findings: sheet.findings, abnormal: sheet.abnormal, examDate: sheet.examDate }) });
+      body: JSON.stringify({ year: grid!.year, birdNo: sheet.bird.id, weightG: sheet.weightG, bcs: sheet.bcs, findings: sheet.findings, abnormal: sheet.abnormal, examDate: sheet.examDate }) });
     setSaving(false);
     if (!r.ok) { setError('Exam sheet not saved — are you still logged in and online?'); return; }
     setSheet(null); load(grid!.year);
@@ -133,7 +133,7 @@ export default function AnnualExamsTab() {
 
   const match = (b: Bird) => !q || `${b.name} ${b.species} ${b.caseNumber} ${b.location}`.toLowerCase().includes(q.toLowerCase());
   const birds = grid.birds.filter(match);
-  const planned = grid.records.filter(r => r.planned && grid.birds.some(b => b.id === r.caseId));
+  const planned = grid.records.filter(r => r.planned && grid.birds.some(b => b.id === r.birdNo));
   const addressed = planned.filter(r => r.status).length;
   const open = birds.filter(b => !hasPlan || left(b) > 0 || !onlyLeft);
   const complete = hasPlan && onlyLeft ? birds.filter(b => itemsFor(b).length && left(b) === 0) : [];
@@ -144,7 +144,7 @@ export default function AnnualExamsTab() {
       <div key={b.id} className="bg-white rounded-xl shadow-sm border border-slate-100 p-3 space-y-2">
         <div className="flex items-start gap-2">
           <div className="flex-1 min-w-0">
-            <div className="font-semibold text-slate-800">{b.name || b.species}</div>
+            <div className="font-semibold text-slate-800">{b.name || b.species}{b.priority && <span className={`ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full align-middle ${b.priority === 'sick' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'}`}>{b.priority}</span>}</div>
             <div className="text-xs text-slate-500">{b.species} · {b.caseNumber}{b.location ? ` · ${b.location}` : ''}</div>
           </div>
           {items.length > 0 && <span className={`text-xs px-2 py-0.5 rounded-full ${n ? 'bg-blue-50 text-blue-700' : 'bg-emerald-50 text-emerald-700'}`}>{n ? `${n} left` : 'complete'}</span>}
@@ -221,7 +221,7 @@ export default function AnnualExamsTab() {
       {view === 'checklist' ? (
         <>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{open.map(card)}</div>
-          {!open.length && <div className="text-center text-slate-500 text-sm py-6">{onlyLeft && hasPlan ? 'Everything planned is recorded 🎉' : 'No birds match.'}</div>}
+          {!open.length && <div className="text-center text-slate-500 text-sm py-6">{!grid.birds.length ? 'No resident birds yet — the list is sent from the CRC Control Board.' : onlyLeft && hasPlan ? 'Everything planned is recorded 🎉' : 'No birds match.'}</div>}
           {complete.length > 0 && (
             <details className="bg-white rounded-lg shadow-sm p-3"><summary className="text-sm text-slate-600 cursor-pointer">Complete ({complete.length})</summary>
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 mt-3">{complete.map(card)}</div></details>
